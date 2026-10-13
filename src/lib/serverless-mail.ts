@@ -15,8 +15,14 @@ export function withMailDelivery<T extends unknown[]>(handler: (...args: T) => P
   return async (...args: T) => {
     const response = await handler(...args)
     if (process.env.MAIL_MODE === 'resend') {
-      const { getPayloadClient } = await import('./payload')
-      await flushMail(await getPayloadClient())
+      try {
+        const { getPayloadClient } = await import('./payload')
+        await flushMail(await getPayloadClient())
+      } catch {
+        console.error(
+          'Mail initialization failed; original response preserved and outbox retained.',
+        )
+      }
     }
     return response
   }

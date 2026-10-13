@@ -1,12 +1,14 @@
+import type { Race, Registration, Result, User } from '@/payload-types'
 import { serverURL } from './server-url'
 import { createHash } from 'node:crypto'
 import {
   APIError,
   type CollectionBeforeValidateHook,
   type CollectionAfterChangeHook,
+  type PayloadRequest,
 } from 'payload'
-const idOf = (value: any) => (typeof value === 'object' ? value?.id : value)
-export const validateRound: CollectionBeforeValidateHook = async ({
+const idOf = (value: number | { id: number }) => (typeof value === 'object' ? value?.id : value)
+export const validateRound: CollectionBeforeValidateHook<Race> = async ({
   data,
   originalDoc,
   req,
@@ -15,7 +17,7 @@ export const validateRound: CollectionBeforeValidateHook = async ({
   if (!data || context.statusOnly) return data
   const season = data.season || originalDoc?.season || '2026/2027'
   const round = data.round ?? originalDoc?.round
-  if (!Number.isInteger(round) || round < 1)
+  if (typeof round !== 'number' || !Number.isInteger(round) || round < 1)
     throw new APIError('Numer rundy musi być dodatnią liczbą całkowitą.', 400)
   // Legacy duplicates remain readable, but any future write must resolve the conflict.
   const matches = await req.payload.find({
@@ -36,7 +38,7 @@ export const validateRound: CollectionBeforeValidateHook = async ({
   data.roundKey = `${season}:${round}`
   return data
 }
-export const validateRegistration: CollectionBeforeValidateHook = async ({
+export const validateRegistration: CollectionBeforeValidateHook<Registration> = async ({
   data,
   originalDoc,
   req,
@@ -44,8 +46,12 @@ export const validateRegistration: CollectionBeforeValidateHook = async ({
   context,
 }) => {
   if (!data || context.migrationImport) return data
-  const driverId = idOf(data.user ?? originalDoc?.user)
-  const raceId = idOf(data.race ?? originalDoc?.race)
+  const driverRelation = data.user ?? originalDoc?.user
+  const raceRelation = data.race ?? originalDoc?.race
+  if (driverRelation == null || raceRelation == null)
+    throw new APIError('Kierowca i wyścig są wymagani.', 400)
+  const driverId = idOf(driverRelation)
+  const raceId = idOf(raceRelation)
   const status = data.status ?? originalDoc?.status ?? 'pending'
   const race = await req.payload.findByID({ collection: 'races', id: raceId, req, depth: 0 })
   const driver = await req.payload.findByID({ collection: 'users', id: driverId, req, depth: 0 })
@@ -108,8 +114,8 @@ export const validateRegistration: CollectionBeforeValidateHook = async ({
   return data
 }
 async function notify(
-  req: any,
-  recipient: any,
+  req: PayloadRequest,
+  recipient: Pick<User, 'id' | 'email'>,
   key: string,
   type: string,
   message: string,
@@ -143,7 +149,7 @@ async function notify(
       },
     })
 }
-export const registrationEvents: CollectionAfterChangeHook = async ({
+export const registrationEvents: CollectionAfterChangeHook<Registration> = async ({
   doc,
   previousDoc,
   req,
@@ -204,7 +210,7 @@ export const registrationEvents: CollectionAfterChangeHook = async ({
   }
   return doc
 }
-export const validateResults: CollectionBeforeValidateHook = ({ data }) => {
+export const validateResults: CollectionBeforeValidateHook<Result> = ({ data }) => {
   if (!data?.entries) return data
   const drivers = new Set(),
     positions = new Set()
@@ -226,7 +232,7 @@ export const validateResults: CollectionBeforeValidateHook = ({ data }) => {
   }
   return data
 }
-export const resultEvents: CollectionAfterChangeHook = async ({ doc, req, context }) => {
+export const resultEvents: CollectionAfterChangeHook<Result> = async ({ doc, req, context }) => {
   if (context.skipEvents || doc.status !== 'published') return doc
   const raceId = idOf(doc.race)
   // Only change race status, bypass round validation for pre-existing conflicting round metadata.
@@ -241,7 +247,7 @@ export const resultEvents: CollectionAfterChangeHook = async ({ doc, req, contex
     .update(
       JSON.stringify(
         (doc.entries || [])
-          .map((e: any) => [
+          .map((e) => [
             idOf(e.driver),
             e.position,
             e.finishStatus,
@@ -251,7 +257,7 @@ export const resultEvents: CollectionAfterChangeHook = async ({ doc, req, contex
             e.gap || '',
             e.bestLap || '',
           ])
-          .sort((a: any, b: any) => String(a[0]).localeCompare(String(b[0]))),
+          .sort((a, b) => String(a[0]).localeCompare(String(b[0]))),
       ),
     )
     .digest('hex')
@@ -264,7 +270,7 @@ export const resultEvents: CollectionAfterChangeHook = async ({ doc, req, contex
   })
   const driverIds = new Set([
     ...registrations.docs.map((r) => idOf(r.user)),
-    ...(doc.entries || []).map((e: any) => idOf(e.driver)),
+    ...(doc.entries || []).map((e) => idOf(e.driver)),
   ])
   for (const id of driverIds) {
     const driver = await req.payload.findByID({ collection: 'users', id, req, depth: 0 })

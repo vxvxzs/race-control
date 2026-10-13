@@ -331,10 +331,6 @@ textarea:focus {
   text-align: right;
   color: #475363;
 }
-.season-band .schedule-status.is-open {
-  color: #176c46;
-  font-weight: 600;
-}
 .calendar-series {
   margin-bottom: 55px;
 }
@@ -353,9 +349,6 @@ textarea:focus {
 }
 .calendar-page .schedule-row::before {
   background: #ffffff06;
-}
-.calendar-page .schedule-status.is-open {
-  color: #86dfb4;
 }
 
 .home-paddock {
@@ -1651,8 +1644,7 @@ textarea:focus {
   color: #b5c0ce;
 }
 .mobile-standing-name small,
-.mobile-round-results,
-.career-registrations p {
+.mobile-round-results {
   font-size: 14px;
 }
 .registration-widget .text-xs {

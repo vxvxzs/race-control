@@ -1,6 +1,6 @@
 import 'dotenv/config'
-import { getPayloadClient } from './lib/payload'
-import { processEmailOutbox } from './lib/notifications'
+import { getPayloadClient } from '../src/lib/payload'
+import { processEmailOutbox } from '../src/lib/notifications'
 const payload = await getPayloadClient()
 console.log('Mail worker active. Local preview: work/mail')
 let stopping = false

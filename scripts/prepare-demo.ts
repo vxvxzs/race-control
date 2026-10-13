@@ -1,8 +1,11 @@
+import { assertLocalDemo, assertDemoAccountsOnly } from './demo-safety'
 import 'dotenv/config'
-import { getPayloadClient } from './lib/payload'
+import { getPayloadClient } from '../src/lib/payload'
 
 // Curates known demo records without deleting accounts or result entries.
+assertLocalDemo()
 const payload = await getPayloadClient()
+await assertDemoAccountsOnly(payload)
 try {
   const users = await payload.find({ collection: 'users', pagination: false })
   const fictional = users.docs.filter((user) => user.demoAccount && user.name === 'Rafał Kubiak')
@@ -20,7 +23,7 @@ try {
         })
       ).totalDocs === 0,
     )
-    if (['Kamil QA Tester', 'dsad', 'ber'].includes(user.name) || duplicate) {
+    if (user.demoAccount && (['Kamil QA Tester', 'dsad', 'ber'].includes(user.name) || duplicate)) {
       await payload.update({ collection: 'users', id: user.id, data: { publicProfile: false } })
       console.log(`Hidden demo test/duplicate profile ${user.id} from roster`)
       const registrations = await payload.find({

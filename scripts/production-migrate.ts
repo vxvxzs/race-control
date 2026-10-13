@@ -2,7 +2,8 @@ import './production-env'
 import pg from 'pg'
 const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL, max: 1 })
 const lock = await pool.connect()
-let payload: Awaited<ReturnType<(typeof import('./lib/payload'))['getPayloadClient']>> | undefined
+let payload:
+  Awaited<ReturnType<(typeof import('../src/lib/payload'))['getPayloadClient']>> | undefined
 try {
   // Transaction locks work with Neon's pooled connections and serialize concurrent builds.
   await lock.query('BEGIN')
@@ -15,7 +16,7 @@ try {
     if (Number(dev.rows[0].count))
       throw new Error('Refusing migration over a pushed development schema')
   }
-  const { getPayloadClient } = await import('./lib/payload')
+  const { getPayloadClient } = await import('../src/lib/payload')
   payload = await getPayloadClient()
   await payload.db.migrate()
   await lock.query('COMMIT')

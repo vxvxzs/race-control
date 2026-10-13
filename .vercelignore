@@ -14,3 +14,4 @@ test.env
 test-results
 playwright-report
 outputs
+OWNER_TECHNICAL_GUIDE.md

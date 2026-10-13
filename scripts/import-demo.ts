@@ -1,43 +1,37 @@
+import { readDemoExport, exportedRelation, demoCollections } from './demo-export'
 import './production-env'
+if (process.env.VERCEL || !process.argv.includes('--import-empty-demo'))
+  throw new Error('Explicit --import-empty-demo required; never run this during deployment')
 import { readFile, writeFile } from 'node:fs/promises'
 import { randomBytes } from 'node:crypto'
 import pg from 'pg'
-import { calculateChampionshipStandings } from './lib/standings'
-import { resultRaces } from './lib/result-view'
-const { getPayloadClient } = await import('./lib/payload')
+import { calculateChampionshipStandings } from '../src/lib/standings'
+import { resultRaces } from '../src/lib/result-view'
+const { getPayloadClient } = await import('../src/lib/payload')
 const payload = await getPayloadClient()
-const data = JSON.parse(await readFile('work/demo-export.json', 'utf8'))
-const collections = [
-  'users',
-  'races',
-  'registrations',
-  'results',
-  'announcements',
-  'notifications',
-  'email-outbox',
-  'media',
-] as const
+const data = await readDemoExport()
+const collections = demoCollections
 const credentialsPath = 'work/production-accounts.private.json'
-let credentials: {
-  owner: { email: string; password: string }
-  reviewer: { email: string; password: string }
-}
-try {
-  credentials = JSON.parse(await readFile(credentialsPath, 'utf8'))
-} catch {
-  credentials = {
-    owner: { email: process.env.OWNER_EMAIL!, password: randomBytes(24).toString('base64url') },
-    reviewer: { email: 'reviewer@example.test', password: randomBytes(24).toString('base64url') },
-  }
-  if (!credentials.owner.email) throw new Error('OWNER_EMAIL required')
-  await writeFile(credentialsPath, JSON.stringify(credentials, null, 2))
-}
 try {
   for (const collection of collections) {
     if ((await payload.count({ collection })).totalDocs)
       throw new Error(
         'Import only into an empty application database; existing records are never overwritten',
       )
+  }
+  let credentials: {
+    owner: { email: string; password: string }
+    reviewer: { email: string; password: string }
+  }
+  try {
+    credentials = JSON.parse(await readFile(credentialsPath, 'utf8'))
+  } catch {
+    credentials = {
+      owner: { email: process.env.OWNER_EMAIL!, password: randomBytes(24).toString('base64url') },
+      reviewer: { email: 'reviewer@example.test', password: randomBytes(24).toString('base64url') },
+    }
+    if (!credentials.owner.email) throw new Error('OWNER_EMAIL required')
+    await writeFile(credentialsPath, JSON.stringify(credentials, null, 2))
   }
   const req = await (await import('payload')).createLocalReq({}, payload)
   await (await import('payload')).initTransaction(req)
@@ -65,12 +59,12 @@ try {
     if (counts[collection] !== data[collection].length)
       throw new Error(`Count mismatch: ${collection}`)
   }
-  const sourceResults = data.results.map((r: any) => ({
+  const sourceResults = data.results.map((r) => ({
     ...r,
-    race: data.races.find((x: any) => x.id === r.race),
-    entries: r.entries.map((e: any) => ({
+    race: exportedRelation(data.races, r.race),
+    entries: r.entries.map((e) => ({
       ...e,
-      driver: data.users.find((x: any) => x.id === e.driver),
+      driver: exportedRelation(data.users, e.driver),
     })),
   }))
   const before = calculateChampionshipStandings(resultRaces(sourceResults))
@@ -103,7 +97,7 @@ try {
     JSON.stringify(
       {
         counts,
-        resultsEntries: data.results.reduce((n: number, r: any) => n + r.entries.length, 0),
+        resultsEntries: data.results.reduce((n, r) => n + r.entries.length, 0),
         standingsUnchanged: true,
         standings: after,
         accountsCreated: 2,

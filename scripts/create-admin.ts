@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { getPayloadClient } from './lib/payload'
+import { getPayloadClient } from '../src/lib/payload'
 if (
   !process.env.ADMIN_EMAIL ||
   !process.env.ADMIN_PASSWORD ||

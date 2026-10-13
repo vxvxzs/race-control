@@ -1,27 +1,29 @@
 # RACE CONTROL
 
-Liga simracingowa: konta kierowców, weryfikacja e-mail, zapisy i decyzje stewardów, wyniki, klasyfikacja oraz powiadomienia.
+Aplikacja ligi simracingowej: konta kierowców, weryfikacja e-mail, zapisy i decyzje stewardów, wyniki, klasyfikacja oraz powiadomienia.
 
-- [Aplikacja](https://race-control-rho.vercel.app) · [CMS](https://race-control-rho.vercel.app/admin)
-- [Odzyskiwanie hasła](https://race-control-rho.vercel.app/forgot-password)
-- Next.js, React, TypeScript, PayloadCMS, Neon PostgreSQL i Resend; hosting Vercel.
-- Dane sportowe są demonstracyjne. [Źródła i licencje materiałów](ASSETS.md).
+Next.js 15, React 19, TypeScript, PayloadCMS 3, PostgreSQL (Neon), Resend i Vercel. Lokalnie SQLite.
 
-## Development
+[Aplikacja](https://race-control-rho.vercel.app) · [CMS](https://race-control-rho.vercel.app/admin)
 
-Node 22, `npm ci`, własny `.env` na podstawie `.env.example`. Ustaw losowy PAYLOAD_SECRET. Lokalnie SQLite: `npm run db:push`, następnie `npm run seed` i `npm run dev`. Nie uruchamiaj seeda ani schema push na produkcji.
+## Uruchomienie
 
-## Kontrole
+Wymagania: Node.js 22 i npm. Zainstaluj zależności przez `npm ci`, skopiuj `.env.example` do `.env` i zastąp PAYLOAD_SECRET losową wartością (minimum 32 znaki). Przykład zawiera nazwy zmiennych, bez sekretów.
 
-- `npm run typecheck`, `npm run build`, `npm test`.
-- `npm run test:integration` — izolowana SQLite.
-- `npm run test:recovery` — tokeny, sesje, równoczesny reset, limity i weryfikacja e-mail w izolowanej SQLite.
-- `npm run test:register-name` — odczytowy test nazw w czystych Chrome, Edge i Brave; wymaga tych przeglądarek. QA_BASE_URL zmienia adres, QA_HEADED=true pokazuje okna.
+Dla lokalnej SQLite wykonaj `npm run db:push`, opcjonalnie `npm run seed`, następnie `npm run dev`. Seed wymaga bazy zawierającej wyłącznie konta demonstracyjne lub pustej bazy. Administratora można utworzyć przez `npm run admin:create` z ADMIN_EMAIL, ADMIN_NAME i ADMIN_PASSWORD przekazanymi w środowisku procesu.
 
-Nie uruchamiaj testów wymagających pustej bazy na produkcji. [Zakres kontroli i nierozstrzygnięta awaria Brave](docs/CRITICAL_FIXES.md).
+## Weryfikacja
 
-## Utrzymanie
+- `npm run typecheck` i `npm run lint` — typy i analiza kodu.
+- `npm test` — logika klasyfikacji, daty, tokeny i blokady narzędzi demo.
+- `npm run test:integration`, `npm run test:recovery` i `npm run test:demo-tools` — osobne lokalne bazy SQLite.
+- `npm run build`, następnie `npm run test:e2e` — produkcyjny build i pełny lokalny przepływ HTTP/przeglądarki; wymaga zainstalowanego Google Chrome.
+- `npm run test:visual` i `npm run test:register-name` — dodatkowe kontrole przeglądarkowe; konfiguracja adresu przez QA_BASE_URL. Test nazw wymaga Chrome, Edge i Brave.
 
-[Wdrożenie i kopie](DEPLOYMENT.md) · [Reset hasła](docs/PASSWORD_RECOVERY.md) · [Polishing](docs/POLISH.md).
+Testów zapisujących dane nie uruchamiaj na produkcji. Skrypty administracyjne znajdują się w `scripts/`.
 
-Sekrety, prywatne konta, kopie bazy i OWNER_TECHNICAL_GUIDE.md pozostają poza Git. Uploady CMS są wyłączone do czasu skonfigurowania trwałego storage. Schemat produkcji zmieniają wersjonowane migracje.
+## Utrzymanie i ograniczenia
+
+[Wdrożenie, migracje i kopie](DEPLOYMENT.md) · [Bezpieczeństwo i ograniczenia](docs/SECURITY.md) · [Źródła i licencje zasobów](ASSETS.md).
+
+Dane sportowe są demonstracyjne. Uploady CMS na Vercelu wymagają trwałego storage i są obecnie wyłączone. Produkcyjny schemat zmieniają wersjonowane migracje; narzędzia demo i schema push są lokalne. Sekrety, kopie danych i prywatny przewodnik właściciela pozostają poza Git.
