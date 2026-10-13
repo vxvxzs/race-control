@@ -48,7 +48,7 @@ export async function POST(req: Request) {
 
     return response
   } catch (err) {
-    console.error('Login error:', err)
+    console.error('Login error:', { name: err instanceof Error ? err.name : 'UnknownError' })
     return NextResponse.json({ error: 'Nieprawidłowy adres e-mail lub hasło.' }, { status: 401 })
   }
 }

@@ -8,7 +8,12 @@ export const Users: CollectionConfig = {
     useAsTitle: 'name',
     defaultColumns: ['name', 'email', 'role', 'racingNumber'],
   },
-  auth: { tokenExpiration: 60 * 60 * 24, maxLoginAttempts: 5, lockTime: 600000 },
+  auth: {
+    tokenExpiration: 60 * 60 * 24,
+    maxLoginAttempts: 5,
+    lockTime: 600000,
+    cookies: { secure: Boolean(process.env.VERCEL), sameSite: 'Lax' },
+  },
   hooks: {
     beforeLogin: [
       ({ user }) => {

@@ -91,7 +91,7 @@ export async function POST(req: Request) {
       },
     })
   } catch (err) {
-    console.error('Registration error:', err)
+    console.error('Registration error:', { name: err instanceof Error ? err.name : 'UnknownError' })
     return apiError(err, 'Błąd podczas rejestracji użytkownika.')
   }
 }

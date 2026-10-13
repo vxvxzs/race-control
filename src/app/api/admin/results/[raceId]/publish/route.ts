@@ -72,10 +72,12 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ raceId: 
         status === 'published'
           ? 'Wyniki zostały opublikowane i zaktualizowały tabelę.'
           : 'Wyniki zapisane jako wersja robocza.',
-      result: resultDoc,
+      result: { id: resultDoc.id, status: resultDoc.status },
     })
   } catch (err) {
-    console.error('Publish results error:', err)
+    console.error('Publish results error:', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+    })
     return apiError(err, 'Błąd zapisu wyników.')
   }
 }

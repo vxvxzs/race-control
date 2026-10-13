@@ -45,10 +45,12 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ id: stri
     return NextResponse.json({
       success: true,
       message: `Status zgłoszenia został zmieniony na: ${status}.`,
-      registration: updated,
+      registration: { id: updated.id, status: updated.status },
     })
   } catch (err) {
-    console.error('Admin update registration error:', err)
+    console.error('Admin update registration error:', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+    })
     return apiError(err, 'Błąd serwera.')
   }
 }

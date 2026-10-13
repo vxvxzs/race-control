@@ -65,7 +65,9 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       message: 'Zgłoszenie na wyścig zostało anulowane.',
     })
   } catch (err) {
-    console.error('Cancel registration error:', err)
+    console.error('Cancel registration error:', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+    })
     return apiError(err, 'Błąd podczas anulowania zgłoszenia.')
   }
 }

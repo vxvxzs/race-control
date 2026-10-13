@@ -9,7 +9,9 @@ export async function getCurrentUser(): Promise<User | null> {
     const { user } = await payload.auth({ headers: reqHeaders })
     return (user as User) || null
   } catch (err) {
-    console.error('Error fetching current user:', err)
+    console.error('Error fetching current user:', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+    })
     return null
   }
 }

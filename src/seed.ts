@@ -554,6 +554,6 @@ Hasło serwera zostanie udostępnione wszystkim kierowcom ze statusem "Zaakcepto
 seed()
   .then(() => process.exit(0))
   .catch((err) => {
-    console.error('❌ Seeding failed:', err)
+    console.error('❌ Seeding failed:', { name: err instanceof Error ? err.name : 'UnknownError' })
     process.exit(1)
   })

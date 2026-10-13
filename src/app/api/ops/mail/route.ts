@@ -10,7 +10,7 @@ async function recover(req: Request) {
   const actual = req.headers.get('authorization')?.replace(/^Bearer /, '') || ''
   if (
     !expected ||
-    actual.length !== expected.length ||
+    Buffer.byteLength(actual) !== Buffer.byteLength(expected) ||
     !timingSafeEqual(Buffer.from(actual), Buffer.from(expected))
   )
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

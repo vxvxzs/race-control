@@ -14,7 +14,9 @@ do {
   try {
     await processEmailOutbox(payload)
   } catch (error) {
-    console.error('Mail queue error', error)
+    console.error('Mail queue error', {
+      name: error instanceof Error ? error.name : 'UnknownError',
+    })
   }
   if (process.argv.includes('--once')) break
   await new Promise((resolve) => setTimeout(resolve, 5000))

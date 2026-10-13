@@ -157,7 +157,9 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       },
     })
   } catch (err) {
-    console.error('Race registration error:', err)
+    console.error('Race registration error:', {
+      name: err instanceof Error ? err.name : 'UnknownError',
+    })
     return apiError(err, 'Błąd podczas przetwarzania zgłoszenia.')
   }
 }
