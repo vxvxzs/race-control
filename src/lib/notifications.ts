@@ -8,8 +8,13 @@ export const escapeHtml = (value: string) =>
     /[&<>"']/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!,
   )
-export function renderEmail(subject: string, message: string, link?: string | null) {
-  return `<!doctype html><html lang="pl"><meta charset="utf-8"><body style="margin:0;background:#eef1f5;font:16px/1.7 Arial,sans-serif;color:#18201e"><div style="max-width:560px;margin:32px auto;background:#fff;padding:40px;border-top:4px solid #d9162c"><p style="font-weight:800;letter-spacing:2px">RACE CONTROL</p><h1 style="font-size:25px;line-height:1.3">${escapeHtml(subject)}</h1><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>${link ? `<p><a href="${escapeHtml(link)}" style="background:#d9162c;color:white;padding:12px 20px;display:inline-block;text-decoration:none">Przejdź do Race Control</a></p>` : ''}<hr style="border:0;border-top:1px solid #ddd"><small>Wiadomość dotycząca Twojego konta lub udziału w zawodach.</small></div></body></html>`
+export function renderEmail(
+  subject: string,
+  message: string,
+  link?: string | null,
+  action = 'Przejdź do Race Control',
+) {
+  return `<!doctype html><html lang="pl"><meta charset="utf-8"><body style="margin:0;background:#eef1f5;font:16px/1.7 Arial,sans-serif;color:#18201e"><div style="max-width:560px;margin:32px auto;background:#fff;padding:40px;border-top:4px solid #d9162c"><p style="font-weight:800;letter-spacing:2px">RACE CONTROL</p><h1 style="font-size:25px;line-height:1.3">${escapeHtml(subject)}</h1><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>${link ? `<p><a href="${escapeHtml(link)}" style="background:#d9162c;color:white;padding:12px 20px;display:inline-block;text-decoration:none">${escapeHtml(action)}</a></p>` : ''}<hr style="border:0;border-top:1px solid #ddd"><small>Wiadomość dotycząca Twojego konta lub udziału w zawodach.</small></div></body></html>`
 }
 export async function deliverMail(mail: EmailOutbox) {
   const html = mail.htmlBody || renderEmail(mail.subject, mail.message, mail.link)

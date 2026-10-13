@@ -1885,3 +1885,40 @@ textarea:focus {
     line-height: 1.5;
   }
 }
+
+.recovery-form {
+  max-width: 460px;
+  width: 100%;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+.recovery-form h1 {
+  font-size: clamp(30px, 4vw, 42px);
+  font-weight: 800;
+  line-height: 1.15;
+}
+.recovery-form > p {
+  color: #b5c0ce;
+  line-height: 1.7;
+}
+.recovery-form label {
+  display: block;
+  font-size: 14px;
+  color: #c2ccd8;
+  margin-bottom: 9px;
+}
+.recovery-form [role='alert'] {
+  color: #ff8a95;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.recovery-form [role='status'] {
+  font-size: 16px;
+  line-height: 1.7;
+}
+.recovery-form button,
+.recovery-form a {
+  min-height: 44px;
+}

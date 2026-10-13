@@ -75,6 +75,7 @@ export interface Config {
     media: Media;
     notifications: Notification;
     'email-outbox': EmailOutbox;
+    'auth-request-limits': AuthRequestLimit;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -90,6 +91,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     notifications: NotificationsSelect<false> | NotificationsSelect<true>;
     'email-outbox': EmailOutboxSelect<false> | EmailOutboxSelect<true>;
+    'auth-request-limits': AuthRequestLimitsSelect<false> | AuthRequestLimitsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -181,6 +183,9 @@ export interface Race {
   name: string;
   slug: string;
   round: number;
+  /**
+   * Wspólne zdjęcie i plan rozpoznajemy z nazwy: Spa-Francorchamps, Monza, Nürburgring GP, Le Mans / Circuit de la Sarthe, Silverstone, Imola. Katalog i licencje: src/lib/tracks.ts.
+   */
   track: string;
   trackCountry?: string | null;
   trackLength?: string | null;
@@ -313,6 +318,18 @@ export interface EmailOutbox {
   firstAttemptAt?: string | null;
   acceptedAt?: string | null;
   providerMessageId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auth-request-limits".
+ */
+export interface AuthRequestLimit {
+  id: number;
+  key: string;
+  count: number;
+  expiresAt: string;
   updatedAt: string;
   createdAt: string;
 }
@@ -587,6 +604,17 @@ export interface EmailOutboxSelect<T extends boolean = true> {
   firstAttemptAt?: T;
   acceptedAt?: T;
   providerMessageId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "auth-request-limits_select".
+ */
+export interface AuthRequestLimitsSelect<T extends boolean = true> {
+  key?: T;
+  count?: T;
+  expiresAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }

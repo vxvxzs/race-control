@@ -13,7 +13,10 @@ export function middleware(req: NextRequest) {
   const response = NextResponse.next()
   response.headers.set('Cache-Control', 'no-store')
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set(
+    'Referrer-Policy',
+    req.nextUrl.pathname === '/reset-password' ? 'no-referrer' : 'strict-origin-when-cross-origin',
+  )
   return response
 }
-export const config = { matcher: ['/api/:path*'] }
+export const config = { matcher: ['/api/:path*', '/reset-password'] }

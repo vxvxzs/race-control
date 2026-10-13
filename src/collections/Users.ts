@@ -1,3 +1,4 @@
+import { recoveryEmail, requireRecoveryContext } from '../lib/password-recovery'
 import { adminField, privateField } from '../lib/access'
 import { APIError } from 'payload'
 import type { CollectionConfig, AccessResult } from 'payload'
@@ -9,12 +10,25 @@ export const Users: CollectionConfig = {
     defaultColumns: ['name', 'email', 'role', 'racingNumber'],
   },
   auth: {
+    useSessions: true,
+    forgotPassword: {
+      expiration: 30 * 60 * 1000,
+      minRequestInterval: 60000,
+      generateEmailSubject: () => 'Ustaw nowe hasło — Race Control',
+      generateEmailHTML: (args) => recoveryEmail(args?.token || ''),
+    },
     tokenExpiration: 60 * 60 * 24,
     maxLoginAttempts: 5,
     lockTime: 600000,
     cookies: { secure: Boolean(process.env.VERCEL), sameSite: 'Lax' },
   },
   hooks: {
+    beforeOperation: [
+      ({ operation, context, args }) => {
+        requireRecoveryContext(operation, context)
+        return args
+      },
+    ],
     beforeLogin: [
       ({ user }) => {
         if (user.disabled) throw new APIError('Konto jest nieaktywne.', 403)
@@ -64,6 +78,18 @@ export const Users: CollectionConfig = {
     admin: ({ req: { user } }) => user?.role === 'admin',
   },
   fields: [
+    {
+      name: 'resetPasswordToken',
+      type: 'text',
+      hidden: true,
+      access: { read: () => false, create: () => false, update: () => false },
+    },
+    ...['resetPasswordExpiration', 'resetPasswordRequestedAt'].map((name) => ({
+      name,
+      type: 'date' as const,
+      hidden: true,
+      access: { read: () => false, create: () => false, update: () => false },
+    })),
     {
       name: 'disabled',
       type: 'checkbox',

@@ -66,3 +66,6 @@ node_modules/
 *.db-shm
 *.sqlite
 *.sqlite3
+
+# Owner-only operational guide
+/OWNER_TECHNICAL_GUIDE.md

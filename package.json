@@ -31,11 +31,14 @@
     "db:import-demo": "tsx src/import-demo.ts",
     "reviewer:revoke": "tsx src/revoke-reviewer.ts",
     "db:backup": "tsx src/backup-production.ts",
-    "demo:restore": "tsx src/restore-demo.ts"
+    "demo:restore": "tsx src/restore-demo.ts",
+    "test:recovery": "tsx tests/password-recovery.integration.ts",
+    "test:register-name": "tsx tests/register-name.browser.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",
     "@payloadcms/db-sqlite": "3.90.2",
+    "@payloadcms/drizzle": "3.90.2",
     "@payloadcms/next": "3.90.2",
     "@payloadcms/richtext-lexical": "3.90.2",
     "@payloadcms/ui": "3.90.2",

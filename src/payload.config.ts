@@ -7,6 +7,7 @@ import path from 'path'
 import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 
+import { AuthRequestLimits } from './collections/AuthRequestLimits'
 import { Notifications, EmailOutbox } from './collections/Notifications'
 import { Users } from './collections/Users'
 import { Races } from './collections/Races'
@@ -49,6 +50,7 @@ export default buildConfig({
     Media,
     Notifications,
     EmailOutbox,
+    AuthRequestLimits,
   ],
   editor: lexicalEditor(),
   secret:

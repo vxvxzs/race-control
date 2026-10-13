@@ -109,6 +109,9 @@ function LoginForm() {
           >
             {loading ? 'Logowanie...' : 'Zaloguj się'}
           </button>
+          <Link href="/forgot-password" className="text-link block text-sm py-2">
+            Nie pamiętasz hasła?
+          </Link>
         </form>
 
         <div className="pt-2 text-center text-xs text-[#A1AAB8]">

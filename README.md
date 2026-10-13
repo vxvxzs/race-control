@@ -1,45 +1,27 @@
 # RACE CONTROL
 
-Publiczne demo ligi simracingowej z kontem kierowcy i panelem organizatora.
+Liga simracingowa: konta kierowców, weryfikacja e-mail, zapisy i decyzje stewardów, wyniki, klasyfikacja oraz powiadomienia.
 
-- Aplikacja: https://race-control-rho.vercel.app
-- CMS: https://race-control-rho.vercel.app/admin
-- Prywatne repozytorium: https://github.com/vxvxzs/race-control
-- Obsługa wdrożenia, migracji, kont i kopii: [DEPLOYMENT.md](DEPLOYMENT.md).
+- [Aplikacja](https://race-control-rho.vercel.app) · [CMS](https://race-control-rho.vercel.app/admin)
+- [Odzyskiwanie hasła](https://race-control-rho.vercel.app/forgot-password)
+- Next.js, React, TypeScript, PayloadCMS, Neon PostgreSQL i Resend; hosting Vercel.
+- Dane sportowe są demonstracyjne. [Źródła i licencje materiałów](ASSETS.md).
 
-![Strona główna](docs/screenshots/home.webp)
-![Strona wydarzenia](docs/screenshots/race.webp)
+## Development
 
-Zrzuty przedstawiają wcześniejszą lokalną iterację tej samej aplikacji. Aktualne zrzuty publicznej produkcji znajdują się w przekazanych materiałach wdrożenia. Dane sportowe są demonstracyjne, fotografie przedstawiają rzeczywiste zawody; [źródła i licencje](ASSETS.md).
+Node 22, `npm ci`, własny `.env` na podstawie `.env.example`. Ustaw losowy PAYLOAD_SECRET. Lokalnie SQLite: `npm run db:push`, następnie `npm run seed` i `npm run dev`. Nie uruchamiaj seeda ani schema push na produkcji.
 
-## Funkcje
+## Kontrole
 
-Rejestracja i jednorazowa weryfikacja e-mail, sesje i profil kierowcy, zgłoszenia z decyzją stewarda, kontrola duplikatów i pojemności, prywatne hasło dla zaakceptowanego kierowcy, wyniki z DNF/DSQ i karami, klasyfikacja z countbackiem, historia kariery, trwałe powiadomienia i poczta Resend. CMS obsługuje te same reguły sportowe co własne API.
+- `npm run typecheck`, `npm run build`, `npm test`.
+- `npm run test:integration` — izolowana SQLite.
+- `npm run test:recovery` — tokeny, sesje, równoczesny reset, limity i weryfikacja e-mail w izolowanej SQLite.
+- `npm run test:register-name` — odczytowy test nazw w czystych Chrome, Edge i Brave; wymaga tych przeglądarek. QA_BASE_URL zmienia adres, QA_HEADED=true pokazuje okna.
 
-## Architektura produkcyjna
+Nie uruchamiaj testów wymagających pustej bazy na produkcji. [Zakres kontroli i nierozstrzygnięta awaria Brave](docs/CRITICAL_FIXES.md).
 
-Next.js 15.5.27, React 19, TypeScript i PayloadCMS 3.90.2 działają w funkcjach Vercel, Node 22, Dublin. Neon PostgreSQL przechowuje dane, sesje, tokeny oraz kolejkę. Oficjalny adapter ma pool do 4 połączeń. SQLite służy lokalnemu developmentowi i izolowanym testom.
+## Utrzymanie
 
-Operacja sportowa, powiadomienie i outbox zapisują się w tej samej transakcji. Po commit serwer przejmuje i wysyła trwałą wiadomość przez Resend. Żaden lokalny worker nie jest potrzebny produkcji. Bounded retry, atomowe przejęcie i idempotencja dostawcy ograniczają duplikaty. Zabezpieczony mechanizm odzyskiwania uzupełnia wysyłkę synchroniczną; codzienny cron nie jest warunkiem aktywacji konta.
+[Wdrożenie i kopie](DEPLOYMENT.md) · [Reset hasła](docs/PASSWORD_RECOVERY.md) · [Polishing](docs/POLISH.md).
 
-Publiczne widoki używają ograniczonych projekcji Local API. Własne operacje sprawdzają sesję i rolę, a hooki kolekcji wspólnie egzekwują reguły CMS/API. Reviewer ma osobne ograniczone konto: sport i demonstracyjni kierowcy, bez dostępu do konta właściciela i kolejki z tokenami.
-
-Media były puste. Obrazy są wersjonowane w public/images; uploady na Vercelu są wyłączone do czasu skonfigurowania trwałego storage.
-
-## Uruchomienie lokalne
-
-Node 22, następnie `npm ci`. Skopiuj `.env.example` do ignorowanego `.env` i ustaw własny PAYLOAD_SECRET. Domyślną bazą lokalną jest SQLite. Przy pierwszym uruchomieniu przygotuj schemat przez `npm run db:push`, potem `npm run seed` i `npm run dev`. Schema push jest ograniczony do lokalnej SQLite. Polecenia produkcyjne używają osobnego ignorowanego `.env.production.local`.
-
-Seed nie tworzy wspólnych, znanych haseł. Własnego administratora dodaje `npm run admin:create` po przekazaniu prywatnych ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_NAME. Nie używaj demo seeda do nadpisywania produkcji.
-
-## Weryfikacja
-
-Polishing z 13.10.2026: [zakres i lekkie kontrole](docs/POLISH.md). Poniższe testy funkcjonalne dotyczą wcześniejszego wdrożenia bazowego; nie uruchamiano ich ponownie dla zmian wizualnych.
-
-Na publicznej domenie: **67 kontroli funkcjonalnych**, **43 kontrole widoków**, **10 kontroli prywatnych wartości** i **4 kontrole końcowe**. Prawdziwa wiadomość weryfikacyjna i decyzje dotarły do Gmaila; SPF, DKIM i DMARC ostatniej decyzji przeszły. Zweryfikowano sesje, dane, punktację i powiadomienia po nowym wdrożeniu.
-
-Lokalnie: 9 testów jednostkowych, 38 kontroli SQLite i 38 kontroli docelowego PostgreSQL. Build, TypeScript, lint (0 błędów, 25 ostrzeżeń any) i formatowanie przeszły. Audyt zależności produkcyjnych: 0 podatności. Szczegóły oraz granice testów: [docs/production-checks.json](docs/production-checks.json).
-
-Przydatne polecenia: `npm test`, `npm run typecheck`, `npm run lint`, `npm run format:check`, `npm run test:integration`. Przegląd publicznych widoków uruchamia `QA_BASE_URL=... npm run test:visual`. Integracji z TEST_POSTGRES nie uruchamiać na wypełnionej produkcji: wymaga pustej bazy testowej i usuwa własne fixtures.
-
-[Przekazanie](HANDOFF.md) · [Case study techniczne](CASE_STUDY.md)
+Sekrety, prywatne konta, kopie bazy i OWNER_TECHNICAL_GUIDE.md pozostają poza Git. Uploady CMS są wyłączone do czasu skonfigurowania trwałego storage. Schemat produkcji zmieniają wersjonowane migracje.
