@@ -2,7 +2,7 @@ import { createServer } from 'node:net'
 import { setDefaultResultOrder } from 'node:dns'
 setDefaultResultOrder('ipv4first')
 import 'dotenv/config'
-import { chromium } from '@playwright/test'
+import { chromium, type BrowserContext } from '@playwright/test'
 import { randomBytes } from 'node:crypto'
 import { mkdir, rm, readFile, writeFile } from 'node:fs/promises'
 import { spawn } from 'node:child_process'
@@ -93,6 +93,28 @@ function check(c: unknown, label: string) {
   checks.push(label)
   console.log('PASS ' + label)
 }
+// APIRequestContext does not emit browser fetch metadata. Payload requires it
+// when authenticating cookie requests without Origin; actual pages keep native headers.
+function browserRequest(context: BrowserContext) {
+  const request = context.request
+  return {
+    patch: (url: string, options: Parameters<typeof request.patch>[1] = {}) =>
+      request.patch(url, {
+        ...options,
+        headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
+      }),
+    get: (url: string, options: Parameters<typeof request.get>[1] = {}) =>
+      request.get(url, {
+        ...options,
+        headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
+      }),
+    post: (url: string, options: Parameters<typeof request.post>[1] = {}) =>
+      request.post(url, {
+        ...options,
+        headers: { 'Sec-Fetch-Site': 'same-origin', ...options.headers },
+      }),
+  }
+}
 try {
   let ready = false
   for (let i = 0; i < 60; i++) {
@@ -106,8 +128,10 @@ try {
   }
   check(ready, 'production HTTP test server ready')
   browser = await chromium.launch({ headless: true, channel: 'chrome' })
+  // Payload checks browser fetch metadata when cookies authenticate HTTP requests.
   const driverContext = await browser.newContext({ viewport: { width: 1440, height: 1000 } }),
     page = await driverContext.newPage()
+  const driverRequest = browserRequest(driverContext)
   page.setDefaultTimeout(15000)
   page.setDefaultNavigationTimeout(30000)
   page.on('pageerror', (e) => errors.push(e.message))
@@ -124,17 +148,17 @@ try {
     await page.getByRole('heading', { name: 'Żaneta Łuczak QA' }).isVisible(),
     'registration form and automatic login work',
   )
-  const me = await (await driverContext.request.get(base + '/api/auth/me')).json(),
+  const me = await (await driverRequest.get(base + '/api/auth/me')).json(),
     id = me.user.id
   check(me.user.emailVerified === false, 'new account starts unverified')
   await page.goto(base + `/races/${race.slug}`)
   await page.getByText('Potwierdź swój adres e-mail przed startem.', { exact: true }).waitFor()
   check(true, 'unverified driver sees verification state instead of a registration form')
-  let r = await driverContext.request.post(base + `/api/races/${race.slug}/register`, {
+  let r = await driverRequest.post(base + `/api/races/${race.slug}/register`, {
     data: { carModel: 'Porsche 992 GT3 R', racingNumber: 88 },
   })
   check(r.status() === 403, 'HTTP unverified registration blocked')
-  r = await driverContext.request.post(base + '/api/auth/resend-verification')
+  r = await driverRequest.post(base + '/api/auth/resend-verification')
   check(r.status() === 429, 'HTTP verification resend throttled')
   await processEmailOutbox(payload)
   const verification = (
@@ -151,7 +175,7 @@ try {
   await page.getByRole('button', { name: 'Potwierdź adres', exact: true }).click()
   await page.getByRole('status').filter({ hasText: 'Adres potwierdzony' }).waitFor()
   check(true, 'verification link activates account through UI')
-  r = await driverContext.request.post(base + '/api/auth/verify', { data: { token } })
+  r = await driverRequest.post(base + '/api/auth/verify', { data: { token } })
   check(r.status() === 400, 'HTTP verification token cannot be reused')
   await page.goto(base + `/races/${race.slug}`)
   await page.getByRole('button', { name: 'Zapisz się na wyścig', exact: true }).waitFor()
@@ -161,8 +185,15 @@ try {
     (await page.locator('#race-number').inputValue()) === '88',
     'background polling preserves unsent registration form',
   )
+  const registrationResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith(`/api/races/${race.slug}/register`) &&
+      response.request().method() === 'POST',
+  )
   await page.getByRole('button', { name: 'Zapisz się na wyścig', exact: true }).click()
-  await page.getByText('Oczekuje na decyzję stewardów', { exact: true }).waitFor()
+  const submitted = await registrationResponse
+  assert.ok(submitted.ok(), `Registration HTTP ${submitted.status()}: ${await submitted.text()}`)
+  await page.locator('.sport-status').filter({ hasText: 'Oczekuje na decyzję stewardów' }).waitFor()
   const reg = (
     await payload.find({ collection: 'registrations', where: { user: { equals: id } }, limit: 1 })
   ).docs[0]
@@ -185,19 +216,19 @@ try {
     ).totalDocs === 1,
     'administrator email queued after actual registration',
   )
-  r = await driverContext.request.post(base + `/api/races/${race.slug}/register`, {
+  r = await driverRequest.post(base + `/api/races/${race.slug}/register`, {
     data: { carModel: 'Porsche 992 GT3 R', racingNumber: 88 },
   })
   check(r.status() === 409, 'HTTP duplicate entry blocked')
-  r = await driverContext.request.post(base + `/api/admin/registrations/${reg.id}/status`, {
+  r = await driverRequest.post(base + `/api/admin/registrations/${reg.id}/status`, {
     data: { status: 'accepted' },
   })
   check(r.status() === 403, 'HTTP driver cannot approve own entry')
-  r = await driverContext.request.patch(base + `/api/registrations/${reg.id}`, {
+  r = await driverRequest.patch(base + `/api/registrations/${reg.id}`, {
     data: { status: 'accepted', user: admin.id },
   })
   check(r.status() === 403, 'native Payload endpoint cannot bypass registration authorization')
-  r = await driverContext.request.patch(base + `/api/users/${id}`, {
+  r = await driverRequest.patch(base + `/api/users/${id}`, {
     data: { role: 'admin', emailVerified: true },
   })
   check(
@@ -226,22 +257,32 @@ try {
   )
   r = await publicRequest.get(base + `/api/races/${race.slug}/check-registration?userId=${id}`)
   check(r.status() === 401, 'registration status requires login')
-  r = await driverContext.request.get(
+  r = await driverRequest.get(
     base + `/api/races/${race.slug}/check-registration?userId=${admin.id}`,
   )
   check(r.status() === 403, 'IDOR lookup blocked')
-  r = await driverContext.request.post(base + '/api/notifications', {
+  r = await driverRequest.post(base + '/api/notifications', {
     data: { id: adminNotices.docs[0].id },
   })
   check(r.status() === 403, 'cannot change another account notification through HTTP')
-  r = await driverContext.request.post(base + '/api/account/profile', {
+  r = await driverRequest.post(base + '/api/notifications', {
+    data: '{',
+    headers: { 'Content-Type': 'application/json' },
+  })
+  check(r.status() === 400, 'malformed notification JSON returns a controlled client error')
+  r = await driverRequest.post(base + '/api/auth/login', {
+    data: { email: 123, password: {} },
+  })
+  check(r.status() === 400, 'login rejects non-string credentials before authentication')
+  r = await driverRequest.post(base + '/api/account/profile', {
     headers: { Origin: 'https://attacker.example' },
     data: { name: 'Attacker' },
   })
   check(r.status() === 403, 'cross-origin mutation blocked')
   const adminContext = await browser.newContext(),
     adminPage = await adminContext.newPage()
-  r = await adminContext.request.post(base + '/api/auth/login', {
+  const adminRequest = browserRequest(adminContext)
+  r = await adminRequest.post(base + '/api/auth/login', {
     data: { email: admin.email, password: adminPassword },
   })
   check(r.ok(), 'private admin login works')
@@ -253,7 +294,8 @@ try {
     'steward approval button persists acceptance',
   )
   await page
-    .getByText('Zaakceptowano — potwierdzony start', { exact: true })
+    .locator('.sport-status')
+    .filter({ hasText: 'Potwierdzony start' })
     .waitFor({ timeout: 25000 })
   await page.getByRole('meter').waitFor()
   await page.waitForFunction(
@@ -269,7 +311,7 @@ try {
   await page.waitForURL(base + '/races/qa-other-race')
   await page.getByRole('button', { name: 'Zapisz się na wyścig', exact: true }).waitFor()
   check(
-    (await page.getByText('Zaakceptowano — potwierdzony start', { exact: true }).count()) === 0,
+    (await page.locator('.sport-status').filter({ hasText: 'Potwierdzony start' }).count()) === 0,
     'client navigation to another race does not carry previous registration state',
   )
   await page.goto(base + '/account')
@@ -292,24 +334,24 @@ try {
     .getByRole('button', { name: /Oznacz jako przeczytane/ })
     .first()
     .click()
-  const unreadBefore = await (await driverContext.request.get(base + '/api/notifications')).json()
+  const unreadBefore = await (await driverRequest.get(base + '/api/notifications')).json()
   check(
-    unreadBefore.notifications.some((n: any) => n.read),
+    unreadBefore.notifications.some((n: { read: boolean }) => n.read),
     'read action persisted',
   )
   await page.screenshot({ path: 'work/after-desktop-account-notifications.png', fullPage: true })
   await page.keyboard.press('Escape')
   await page.reload()
   check(
-    (
-      await (await driverContext.request.get(base + '/api/notifications')).json()
-    ).notifications.some((n: any) => n.read),
+    (await (await driverRequest.get(base + '/api/notifications')).json()).notifications.some(
+      (n: { read: boolean }) => n.read,
+    ),
     'read state survives browser refresh',
   )
   const entries = [
     { driver: id, position: 1, finishStatus: 'dnf', classified: true, penaltyPoints: 2 },
   ]
-  r = await adminContext.request.post(base + `/api/admin/results/${race.id}/publish`, {
+  r = await adminRequest.post(base + `/api/admin/results/${race.id}/publish`, {
     data: { status: 'published', entries },
   })
   check(r.ok(), 'admin publishes results through HTTP')
@@ -320,7 +362,7 @@ try {
     })
   ).totalDocs
   check(noticeCount === 1, 'participant receives publication notification')
-  r = await adminContext.request.post(base + `/api/admin/results/${race.id}/publish`, {
+  r = await adminRequest.post(base + `/api/admin/results/${race.id}/publish`, {
     data: { status: 'published', entries },
   })
   check(
@@ -351,7 +393,7 @@ try {
       .innerText()) === '23',
     'standings stable after refresh',
   )
-  r = await adminContext.request.post(base + `/api/admin/results/${race.id}/publish`, {
+  r = await adminRequest.post(base + `/api/admin/results/${race.id}/publish`, {
     data: { status: 'published', entries: [{ ...entries[0], classified: false }] },
   })
   check(r.ok(), 'steward can mark driver unclassified')
@@ -399,16 +441,16 @@ try {
     (await payload.findByID({ collection: 'users', id })).team === 'Nowy Zespół QA',
     'profile edit remains functional',
   )
-  r = await driverContext.request.post(base + '/api/auth/logout')
+  r = await driverRequest.post(base + '/api/auth/logout')
   check(r.ok(), 'logout works')
-  r = await driverContext.request.post(base + '/api/auth/login', {
+  r = await driverRequest.post(base + '/api/auth/login', {
     data: { email: 'reviewer@example.test', password: 'OnlyForIsolatedTests-123!' },
   })
   check(r.ok(), 'driver logs back in')
   check(
-    (
-      await (await driverContext.request.get(base + '/api/notifications')).json()
-    ).notifications.some((n: any) => n.type === 'results_published'),
+    (await (await driverRequest.get(base + '/api/notifications')).json()).notifications.some(
+      (n: { type: string }) => n.type === 'results_published',
+    ),
     'notifications survive re-login',
   )
   await page.setViewportSize({ width: 1440, height: 1000 })
@@ -470,7 +512,7 @@ try {
     },
   })
   await page.goto(base + `/races/${otherRace.slug}`)
-  await page.getByText('Zgłoszenie odrzucone', { exact: true }).waitFor()
+  await page.locator('.sport-status').filter({ hasText: 'Zgłoszenie odrzucone' }).waitFor()
   check(
     await page.getByText('Sprawdź numer startowy.', { exact: true }).isVisible(),
     'rejected entry displays the steward reason',

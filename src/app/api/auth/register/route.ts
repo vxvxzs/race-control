@@ -44,7 +44,6 @@ export async function POST(req: Request) {
 
     const payload = await getPayloadClient()
 
-    // Check if user already exists
     const existing = await payload.find({
       collection: 'users',
       where: {
@@ -62,7 +61,6 @@ export async function POST(req: Request) {
       )
     }
 
-    // Create new driver account
     const newUser = await payload.create({
       collection: 'users',
       data: {

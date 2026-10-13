@@ -1,14 +1,17 @@
+import type { User, Race } from '../src/payload-types'
+import { assertLocalDemo, assertDemoAccountsOnly } from './demo-safety'
 import 'dotenv/config'
 import { randomBytes } from 'node:crypto'
-import { getPayloadClient } from './lib/payload'
+import { getPayloadClient } from '../src/lib/payload'
 
 async function seed() {
   if (process.env.NODE_ENV === 'production') throw new Error('Seed disabled in production')
-  console.log('🚀 Starting RACE CONTROL database seeding...')
+  console.log('Starting RACE CONTROL database seeding...')
+  assertLocalDemo()
   const payload = await getPayloadClient()
+  await assertDemoAccountsOnly(payload)
 
-  // 1. Create Admin Account
-  console.log('👤 Creating administrator account...')
+  console.log('Creating administrator account...')
   const existingAdmin = await payload.find({
     collection: 'users',
     where: { email: { equals: 'admin@example.test' } },
@@ -32,8 +35,7 @@ async function seed() {
     })
   }
 
-  // 2. Create Drivers
-  console.log('🏎️ Creating driver accounts...')
+  console.log('Creating driver accounts...')
   const driversData = [
     {
       name: 'Rafał Kubiak',
@@ -93,7 +95,7 @@ async function seed() {
     },
   ]
 
-  const driverDocs: any[] = []
+  const driverDocs: User[] = []
   for (const d of driversData) {
     const found = await payload.find({
       collection: 'users',
@@ -128,8 +130,7 @@ async function seed() {
     }
   }
 
-  // 3. Create Races
-  console.log('🏁 Creating championship calendar races...')
+  console.log('Creating championship calendar races...')
   const racesData = [
     {
       name: 'Runda 1 - Grand Prix Spa-Francorchamps',
@@ -236,7 +237,7 @@ async function seed() {
     },
   ]
 
-  const raceDocs: Record<string, any> = {}
+  const raceDocs: Record<string, Race> = {}
   for (const r of racesData) {
     const found = await payload.find({
       collection: 'races',
@@ -254,7 +255,6 @@ async function seed() {
     }
   }
 
-  // 4. Create Registrations for Races
   console.log('📝 Creating registrations for races...')
 
   // Registrations for Runda 3 (Nürburgring - Upcoming)
@@ -300,7 +300,6 @@ async function seed() {
     }
   }
 
-  // 5. Create Results for Completed Rounds (Spa and Monza)
   console.log('🏆 Creating published results for Round 1 & Round 2...')
 
   // Round 1 - Spa Results
@@ -473,8 +472,7 @@ async function seed() {
     })
   }
 
-  // 6. Create Announcements
-  console.log('📢 Creating league announcements...')
+  console.log('Creating league announcements...')
   const announcementsData = [
     {
       title: 'Regulamin sezonu GT3 Sprint Series 2026/27',
@@ -545,7 +543,7 @@ Hasło serwera zostanie udostępnione wszystkim kierowcom ze statusem "Zaakcepto
     }
   }
 
-  console.log('✅ Seeding completed successfully!')
+  console.log('Seeding completed successfully!')
   console.log(
     'Demo driver passwords are random and unavailable. Create your own account or private administrator.',
   )

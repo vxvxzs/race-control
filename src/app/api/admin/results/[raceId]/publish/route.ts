@@ -22,7 +22,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ raceId: 
 
     const payload = await getPayloadClient()
 
-    // Verify race exists
     const race = await payload.findByID({
       collection: 'races',
       id: raceId,
@@ -32,7 +31,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ raceId: 
       return NextResponse.json({ error: 'Wyścig nie istnieje.' }, { status: 404 })
     }
 
-    // Check if results document already exists for this race
     const existingResults = await payload.find({
       collection: 'results',
       where: {

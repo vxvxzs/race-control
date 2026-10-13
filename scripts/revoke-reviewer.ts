@@ -1,6 +1,6 @@
 import './production-env'
 import { randomBytes } from 'node:crypto'
-const { getPayloadClient } = await import('./lib/payload')
+const { getPayloadClient } = await import('../src/lib/payload')
 const payload = await getPayloadClient()
 try {
   const reviewers = await payload.find({

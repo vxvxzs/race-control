@@ -22,7 +22,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ id: stri
 
     const payload = await getPayloadClient()
 
-    // Find registration with related user and race
     const reg = await payload.findByID({
       collection: 'registrations',
       id,

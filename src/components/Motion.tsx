@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 const ease = 'cubic-bezier(.22,.68,0,1)'
 const seen = new Set<string>()
 
-// Content is always visible without JavaScript; the observer only adds an entry animation.
+// The observer adds an entry animation without hiding the initial content with CSS.
 export function Motion() {
   const pathname = usePathname()
   useEffect(() => {
@@ -40,20 +40,36 @@ export function Motion() {
       },
       { threshold: 0.08 },
     )
-    document
-      .querySelectorAll<HTMLElement>(
-        '[data-reveal], [data-hero-reveal], .schedule-row, .roster-row, .paddock-news article',
-      )
-      .forEach((el, i) => {
-        el.dataset.motionKey = el.id || String(i)
+    const selector =
+      '[data-reveal], [data-hero-reveal], .schedule-row, .roster-row, .paddock-news article'
+    const registered = new WeakSet<HTMLElement>()
+    let nextKey = 0
+    const register = (root: ParentNode) => {
+      const elements = [...root.querySelectorAll<HTMLElement>(selector)]
+      if (root instanceof HTMLElement && root.matches(selector)) elements.unshift(root)
+      for (const el of elements) {
+        if (registered.has(el)) continue
+        registered.add(el)
+        el.dataset.motionKey = el.dataset.motionKey || el.id || String(nextKey++)
         observer.observe(el)
-      })
+      }
+    }
+    const content = document.getElementById('content') || document.body
+    register(content)
+    // Next.js can stream the page after the layout effect has already run.
+    // Inspect only added element subtrees, not the whole document on every tick.
+    const streamed = new MutationObserver((records) => {
+      for (const record of records)
+        for (const node of record.addedNodes) if (node instanceof HTMLElement) register(node)
+    })
+    streamed.observe(content, { childList: true, subtree: true })
     const stop = () => {
       if (preference.matches) animations.forEach((a) => a.cancel())
     }
     preference.addEventListener('change', stop)
     return () => {
       observer.disconnect()
+      streamed.disconnect()
       animations.forEach((a) => a.cancel())
       preference.removeEventListener('change', stop)
     }

@@ -8,6 +8,7 @@ const __filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(__filename)
 
 const nextConfig: NextConfig = {
+  redirects: async () => [{ source: '/favicon.ico', destination: '/favicon.svg', permanent: true }],
   eslint: {
     ignoreDuringBuilds: false,
   },

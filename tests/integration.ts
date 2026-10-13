@@ -27,7 +27,7 @@ function check(condition: unknown, label: string) {
   checks++
   console.log(`PASS ${label}`)
 }
-async function rejected(action: () => Promise<any>, label: string) {
+async function rejected(action: () => Promise<unknown>, label: string) {
   let blocked = false
   try {
     await action()
@@ -294,9 +294,9 @@ try {
         track: race.track,
         date: race.date,
         status: r.status,
-        entries: r.entries.map((e: any) => ({
-          driverId: String(e.driver.id),
-          driverName: e.driver.name,
+        entries: r.entries.map((e) => ({
+          driverId: String(typeof e.driver === 'object' ? e.driver.id : e.driver),
+          driverName: typeof e.driver === 'object' ? e.driver.name : 'Kierowca',
           position: e.position,
           finishStatus: e.finishStatus,
           classified: e.classified !== false,
@@ -433,7 +433,7 @@ try {
       status: 'pending',
     },
   })
-  const sender = async (mail: any) => {
+  const sender = async (mail: { id: number }) => {
     if (mail.id === concurrent.id) deliveries++
     return 'preview' as const
   }

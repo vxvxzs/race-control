@@ -260,15 +260,6 @@ label {
   gap: 22px;
   margin-top: 24px;
 }
-.status-dot {
-  background: #b9ce9b;
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-}
-.status-dot.closed {
-  background: #8e9499;
-}
 .season-band {
   padding-block: 52px 58px;
   background: #ece9e1;
@@ -518,9 +509,6 @@ label {
 .points-scale strong {
   font-size: 23px;
   font-weight: 500;
-}
-.mobile-table-hint {
-  display: none;
 }
 .empty-state {
   padding: 32px 0;
@@ -949,12 +937,6 @@ label {
   }
   .page-heading p {
     font-size: 13px;
-  }
-  .mobile-table-hint {
-    display: block;
-    font-size: 11px;
-    color: #a1aab8;
-    margin-bottom: 10px;
   }
   .standings-table {
     font-size: 13px;

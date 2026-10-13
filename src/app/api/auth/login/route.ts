@@ -6,7 +6,14 @@ export async function POST(req: Request) {
     const body = await req.json()
     const { email, password } = body
 
-    if (!email || !password) {
+    if (
+      typeof email !== 'string' ||
+      !email.trim() ||
+      email.length > 254 ||
+      typeof password !== 'string' ||
+      !password ||
+      password.length > 128
+    ) {
       return NextResponse.json({ error: 'Adres e-mail i hasło są wymagane.' }, { status: 400 })
     }
 
@@ -35,7 +42,6 @@ export async function POST(req: Request) {
       },
     })
 
-    // Set payload-token cookie
     response.cookies.set({
       name: 'payload-token',
       value: result.token,

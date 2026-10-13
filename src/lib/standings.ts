@@ -71,7 +71,6 @@ export function calculateEntryPoints(
 export function calculateChampionshipStandings(
   racesWithResults: RaceWithResult[],
 ): DriverStanding[] {
-  // Only process published results
   const publishedRaces = racesWithResults.filter((r) => r.status === 'published')
 
   const driversMap = new Map<
@@ -94,7 +93,6 @@ export function calculateChampionshipStandings(
     }
   >()
 
-  // Iterate over each published race round
   for (const race of publishedRaces) {
     for (const entry of race.entries) {
       if (!entry.driverId) continue
@@ -120,7 +118,6 @@ export function calculateChampionshipStandings(
         driversMap.set(entry.driverId, driver)
       }
 
-      // Update stats
       driver.starts += 1
       if (entry.finishStatus === 'dnf') {
         driver.dnfs += 1
@@ -153,7 +150,6 @@ export function calculateChampionshipStandings(
     }
   }
 
-  // Convert to array and sort deterministically
   const standingsList = Array.from(driversMap.values()).map((d) => ({
     driverId: d.driverId,
     driverName: d.driverName,
@@ -171,7 +167,6 @@ export function calculateChampionshipStandings(
     racePoints: d.racePoints,
   }))
 
-  // Tie-breaker comparator
   standingsList.sort((a, b) => {
     // 1. Total points descending
     if (b.totalPoints !== a.totalPoints) {
@@ -199,7 +194,6 @@ export function calculateChampionshipStandings(
     )
   })
 
-  // Assign ranks and calculate gaps to leader / next
   const leaderPoints = standingsList.length > 0 ? standingsList[0].totalPoints : 0
 
   return standingsList.map((driver, index) => {

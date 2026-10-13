@@ -1,32 +1,36 @@
+import type { CollectionSlug } from 'payload'
+import { assertLocalDemo } from './demo-safety'
 import 'dotenv/config'
 import { randomBytes } from 'node:crypto'
-import { mkdir, writeFile } from 'node:fs/promises'
+import { access, mkdir, writeFile } from 'node:fs/promises'
 // Read a working COPY, never alter the user's live SQLite database.
+assertLocalDemo()
+await access('work/production-source.db')
 process.env.DATABASE_URL = 'file:./work/production-source.db'
 process.env.PAYLOAD_DB_PUSH = 'true'
-const { getPayloadClient } = await import('./lib/payload')
+const { getPayloadClient } = await import('../src/lib/payload')
+assertLocalDemo()
 const payload = await getPayloadClient()
-const collections = [
-  'users',
-  'races',
-  'registrations',
-  'results',
-  'announcements',
-  'notifications',
-  'email-outbox',
-  'media',
-] as const
-const data: Record<string, any[]> = {}
+async function read<K extends CollectionSlug>(collection: K) {
+  return (await payload.find({ collection, depth: 0, pagination: false, showHiddenFields: true }))
+    .docs
+}
 try {
-  for (const collection of collections)
-    data[collection] = (
-      await payload.find({ collection, depth: 0, pagination: false, showHiddenFields: true })
-    ).docs
+  const data = {
+    users: await read('users'),
+    races: await read('races'),
+    registrations: await read('registrations'),
+    results: await read('results'),
+    announcements: await read('announcements'),
+    notifications: await read('notifications'),
+    'email-outbox': await read('email-outbox'),
+    media: await read('media'),
+  }
   if (data.media.length)
     throw new Error('Persistent media storage must be configured before importing uploads')
   const replacements: Array<[string, string]> = []
   for (const user of data.users) {
-    const oldName = user.name as string
+    const oldName = user.name
     const name =
       user.id === 11
         ? 'Michał Zieliński'
@@ -55,13 +59,18 @@ try {
       loginAttempts: 0,
       lockUntil: null,
     })
-    for (const key of ['hash', 'salt', 'password']) delete user[key]
+    const auth = user as typeof user & { hash?: string; salt?: string }
+    delete auth.hash
+    delete auth.salt
+    delete auth.password
   }
   for (const race of data.races) race.serverPassword = `DEMO-${randomBytes(12).toString('hex')}`
-  for (const collection of ['notifications', 'email-outbox'])
+  for (const collection of ['notifications', 'email-outbox'] as const)
     for (const row of data[collection]) {
-      for (const key of ['subject', 'message'])
-        if (row[key]) for (const [a, b] of replacements) row[key] = row[key].replaceAll(a, b)
+      for (const [a, b] of replacements) {
+        row.message = row.message.replaceAll(a, b)
+        if ('subject' in row) row.subject = row.subject.replaceAll(a, b)
+      }
       if (collection === 'email-outbox')
         Object.assign(row, {
           recipient: `archive-${row.id}@example.test`,
