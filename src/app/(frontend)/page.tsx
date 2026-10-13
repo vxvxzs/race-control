@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { resultRaces } from '@/lib/result-view'
 import { activeSeason, championshipResults } from '@/lib/season'
 import { getPayloadClient } from '@/lib/payload'

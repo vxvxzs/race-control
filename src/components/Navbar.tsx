@@ -2,7 +2,7 @@
 import type { User } from '@/payload-types'
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { Menu, X } from 'lucide-react'
 import { NotificationBell } from './NotificationBell'
 export function Navbar() {

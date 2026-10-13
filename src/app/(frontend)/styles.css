@@ -407,37 +407,6 @@ label {
   max-width: 650px;
   font-size: 15px;
 }
-.championship-leader {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  padding: 20px 0;
-  border-block: 1px solid #303848;
-  margin-bottom: 32px;
-}
-.championship-leader .eyebrow {
-  margin: 0;
-  font-size: 10px;
-}
-.championship-leader strong {
-  font-size: 23px;
-  font-weight: 600;
-  letter-spacing: -0.03em;
-}
-.championship-leader > span:not(.eyebrow) {
-  font-size: 13px;
-  color: #a1aab8;
-}
-.championship-leader b {
-  margin-left: auto;
-  font-size: 32px;
-  font-weight: 600;
-}
-.championship-leader small {
-  font-size: 12px;
-  font-weight: 400;
-  color: #a1aab8;
-}
 .table-scroll {
   overflow-x: auto;
   scrollbar-width: thin;
@@ -470,7 +439,7 @@ label {
 }
 .standings-table small {
   display: block;
-  font-size: 10px;
+  font-size: 13px;
   color: #a1aab8;
   font-weight: 400;
   margin-top: 4px;
@@ -498,7 +467,7 @@ label {
   font-weight: 600;
 }
 .driver-identity small {
-  font-size: 12px;
+  font-size: 13px;
 }
 .standings-table .rank {
   text-align: left;
@@ -882,9 +851,6 @@ label {
   .paddock-news > h2 {
     grid-column: 1/-1;
   }
-  .championship-leader > span:not(.eyebrow) {
-    display: none;
-  }
   .career-content {
     gap: 35px;
   }
@@ -983,25 +949,6 @@ label {
   }
   .page-heading p {
     font-size: 13px;
-  }
-  .championship-leader {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 5px 15px;
-    padding: 17px 0;
-    margin-bottom: 24px;
-  }
-  .championship-leader .eyebrow {
-    grid-column: 1;
-  }
-  .championship-leader strong {
-    grid-column: 1;
-    font-size: 19px;
-  }
-  .championship-leader b {
-    grid-column: 2;
-    grid-row: 1/3;
-    font-size: 30px;
   }
   .mobile-table-hint {
     display: block;
@@ -1231,7 +1178,7 @@ label {
 }
 .archive-race {
   display: grid;
-  grid-template-columns: 1fr 0.8fr 0.9fr;
+  grid-template-columns: minmax(210px, 0.65fr) minmax(0, 1.65fr);
   gap: 45px;
   align-items: center;
   padding: 34px 0;
@@ -1243,54 +1190,17 @@ label {
   margin-bottom: 10px;
 }
 .archive-event .eyebrow {
-  font-size: 10px;
+  font-size: 13px;
   margin-bottom: 10px;
 }
 .archive-event p {
   color: #a1aab8;
-  font-size: 12px;
+  font-size: 14px;
 }
 .archive-event .text-link {
   display: block;
   margin-top: 18px;
   font-size: 13px;
-}
-.archive-winner > span {
-  display: block;
-  font-size: 11px;
-}
-.archive-winner > strong {
-  display: block;
-  font-size: 23px;
-  font-weight: 550;
-  letter-spacing: -0.03em;
-  margin-top: 8px;
-}
-.archive-winner > small {
-  color: #a1aab8;
-  font-size: 12px;
-}
-.archive-podium {
-  list-style: none;
-  display: grid;
-  gap: 16px;
-}
-.archive-podium li {
-  display: grid;
-  grid-template-columns: 25px 1fr auto;
-  gap: 10px;
-  align-items: center;
-  font-size: 12px;
-}
-.archive-podium strong {
-  font-weight: 550;
-}
-.archive-podium span,
-.archive-podium small {
-  color: #a1aab8;
-}
-.archive-latest .archive-winner > strong {
-  color: #f4f6f8;
 }
 @media (max-width: 900px) {
   .roster-head {
@@ -1301,9 +1211,6 @@ label {
   }
   .archive-race {
     gap: 24px;
-  }
-  .archive-podium small {
-    display: none;
   }
 }
 @media (max-width: 640px) {
@@ -1369,20 +1276,6 @@ label {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 28px 0;
-  }
-  .archive-winner {
-    border-left: 2px solid #ff7381;
-    padding-left: 15px;
-  }
-  .archive-winner > strong {
-    font-size: 22px;
-  }
-  .archive-podium {
-    margin: 0;
-    padding: 0;
-  }
-  .archive-podium small {
-    display: block;
   }
   .standings-table .total-cell {
     position: sticky;

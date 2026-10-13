@@ -1,5 +1,5 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { useEffect, useRef, useState } from 'react'
 import { Bell, Check, X } from 'lucide-react'
 type Notice = { id: number; message: string; link?: string; read: boolean; createdAt: string }

@@ -1,5 +1,6 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
+import { Status } from './Status'
 import { AnimatedNumber } from './Motion'
 import { Countdown } from './Countdown'
 import { LatestNotifications } from './LatestNotifications'
@@ -63,7 +64,7 @@ export function DriverAccountDashboard({
   }, [initialUser, initialRegs])
   useEffect(() => {
     const interval = setInterval(() => {
-      if (!editing && !busy) router.refresh()
+      if (!document.hidden && !editing && !busy) router.refresh()
     }, 15000)
     return () => clearInterval(interval)
   }, [router, editing, busy])
@@ -238,7 +239,18 @@ export function DriverAccountDashboard({
               <p>
                 {formatRaceDate(next.race.date)} · {formatRaceTime(next.race.date)}
               </p>
-              <p className="career-status">{labels[next.status]}</p>
+              <Status
+                className="career-status"
+                state={
+                  next.status === 'accepted'
+                    ? 'confirmed'
+                    : next.status === 'pending'
+                      ? 'pending'
+                      : 'neutral'
+                }
+              >
+                {labels[next.status]}
+              </Status>
               <Countdown date={next.race.date} />
               {next.status === 'accepted' && next.race.serverPassword && (
                 <p>
@@ -262,9 +274,20 @@ export function DriverAccountDashboard({
                   <p>
                     #{r.racingNumber} · {r.carModel}
                   </p>
-                  <p>
-                    {formatRaceDate(r.race.date)} · {labels[r.status]}
-                  </p>
+                  <p>{formatRaceDate(r.race.date)}</p>
+                  <Status
+                    state={
+                      r.status === 'accepted'
+                        ? 'confirmed'
+                        : r.status === 'pending'
+                          ? 'pending'
+                          : r.status === 'rejected'
+                            ? 'rejected'
+                            : 'neutral'
+                    }
+                  >
+                    {labels[r.status]}
+                  </Status>
                   {r.adminNote && <p>Stewardzi: {r.adminNote}</p>}
                 </div>
                 {r.race.registrationStatus === 'open' &&

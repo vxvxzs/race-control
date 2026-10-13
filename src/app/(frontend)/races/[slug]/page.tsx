@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { formatRaceDate, formatRaceTime } from '@/lib/dates'
 import { getCurrentUser } from '@/lib/auth'
 import { notFound } from 'next/navigation'
@@ -7,6 +7,8 @@ import { RaceRegistrationWidget } from '@/components/RaceRegistrationWidget'
 import { AdminRaceStewardBar } from '@/components/AdminRaceStewardBar'
 import { RacePhoto } from '@/components/RacePhoto'
 import { Countdown } from '@/components/Countdown'
+import { getTrackVisual } from '@/lib/tracks'
+import { Status } from '@/components/Status'
 import { Circuit } from '@/components/Circuit'
 export const dynamic = 'force-dynamic'
 export default async function RaceDetailPage({ params }: { params: Promise<{ slug: string }> }) {
@@ -37,7 +39,7 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
   ])
   const acceptedDrivers = regRes.docs.filter((r) => r.status === 'accepted')
   const pendingDrivers = regRes.docs.filter((r) => r.status === 'pending')
-  const isNurburgring = race.slug === 'nurburgring-gt3'
+  const track = getTrackVisual(race.track)
   const status =
     race.raceStatus === 'completed'
       ? 'Wyścig zakończony'
@@ -47,11 +49,7 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
   return (
     <div className="event-page">
       <section className="event-hero">
-        <RacePhoto
-          scene={isNurburgring ? 'night' : 'nurburgring'}
-          priority
-          className="event-backdrop"
-        />
+        {track && <RacePhoto photo={track.photo} priority className="event-backdrop" />}
         <div className="page-width event-hero-content">
           <Link className="event-back" href="/calendar">
             Kalendarz
@@ -64,11 +62,18 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
             <p>
               {race.trackCountry} {race.trackLength && `· ${race.trackLength}`}
             </p>
-            <span
-              className={`event-status ${race.raceStatus !== 'completed' && race.registrationStatus === 'open' ? 'is-open' : ''}`}
+            <Status
+              className="event-status"
+              state={
+                race.raceStatus === 'completed'
+                  ? 'confirmed'
+                  : race.registrationStatus === 'open'
+                    ? 'open'
+                    : 'neutral'
+              }
             >
               {status}
-            </span>
+            </Status>
           </div>
           <div className="event-facts">
             <div>
@@ -86,9 +91,6 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
             </div>
           </div>
         </div>
-        {!isNurburgring && (
-          <span className="photo-context">Fotografia GT3 z Nürburgringu · ilustracja ligi</span>
-        )}
       </section>
       <div className="page-width event-body">
         {viewer?.role === 'admin' && (
@@ -105,7 +107,7 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
         )}
         <div className="event-columns">
           <div className="event-information">
-            {isNurburgring && <Circuit />}
+            {track && <Circuit name={track.name} outline={track.outline} />}
             {race.raceStatus === 'upcoming' && <Countdown date={race.date} />}
             <section className="event-brief" data-reveal>
               <h2>Briefing zawodów</h2>
@@ -160,7 +162,9 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
                       <span>{driver?.team || 'Kierowca niezależny'}</span>
                     </div>
                     <span className="grid-car">{reg.carModel}</span>
-                    <span className="grid-confirmed">Potwierdzony</span>
+                    <Status className="grid-confirmed" state="confirmed">
+                      Potwierdzony
+                    </Status>
                   </article>
                 )
               })}

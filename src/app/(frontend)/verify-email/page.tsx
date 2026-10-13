@@ -1,5 +1,5 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 function Verify() {

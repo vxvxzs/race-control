@@ -1,6 +1,7 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { useEffect, useState } from 'react'
+import { Status } from './Status'
 import { SlotMeter } from './SlotMeter'
 type Snapshot = {
   acceptedCount: number
@@ -40,7 +41,11 @@ export function HeroRegistration({ slug, initial }: { slug: string; initial: Sna
         </Link>
       </div>
       <div className="hero-availability">
-        <span>
+        <Status
+          state={
+            open && free > 0 ? 'open' : race.raceStatus === 'completed' ? 'confirmed' : 'neutral'
+          }
+        >
           {race.raceStatus === 'completed'
             ? 'Wyścig zakończony'
             : open
@@ -48,7 +53,7 @@ export function HeroRegistration({ slug, initial }: { slug: string; initial: Sna
                 ? 'Zapisy otwarte'
                 : 'Lista pełna'
               : 'Zapisy zamknięte'}
-        </span>
+        </Status>
         <span>
           {free} z {race.maxParticipants} miejsc wolnych
         </span>

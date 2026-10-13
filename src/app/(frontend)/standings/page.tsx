@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { resultRaces } from '@/lib/result-view'
 import { AnimatedNumber, LiveStandings } from '@/components/Motion'
 import { championshipResults } from '@/lib/season'
@@ -24,22 +24,22 @@ export default async function StandingsPage() {
         <header className="page-heading">
           <span className="eyebrow">GT3 Sprint Series · Sezon 2026 / 27</span>
           <h1>Klasyfikacja kierowców</h1>
-          <p>Wyniki {races.length} rozegranych wyścigów.</p>
+          <p>{races.length} rozegrane rundy · tabela mistrzostw</p>
         </header>
         {standings[0] && (
-          <div className="championship-leader">
-            <span className="eyebrow">Lider mistrzostw</span>
+          <div className="championship-lead">
+            <span>Lider mistrzostw</span>
             <strong>{standings[0].driverName}</strong>
-            <span>{standings[0].team}</span>
             <b>
-              {standings[0].totalPoints}
-              <small> pkt</small>
+              {standings[0].totalPoints} <small>pkt</small>
             </b>
+            {standings[1] && (
+              <span>
+                P2 · {standings[1].driverName} · {standings[1].diffToLeader}
+              </span>
+            )}
           </div>
         )}
-        <p className="mobile-table-hint">
-          Dotknij kierowcy, aby zobaczyć wyniki poszczególnych rund.
-        </p>
         <div
           className="table-scroll"
           role="region"
@@ -56,12 +56,10 @@ export default async function StandingsPage() {
                 <th scope="col" className="driver-cell">
                   Kierowca
                 </th>
-                <th scope="col" className="stat-column">
-                  Starty
+                <th scope="col" className="total-cell">
+                  Punkty
                 </th>
-                <th scope="col" className="stat-column">
-                  Wygrane
-                </th>
+                <th scope="col">Strata</th>
                 {races.map((r) => (
                   <th key={r.raceId} scope="col">
                     <Link href={`/results/${r.slug}`}>
@@ -70,10 +68,12 @@ export default async function StandingsPage() {
                     </Link>
                   </th>
                 ))}
-                <th scope="col" className="total-cell">
-                  Punkty
+                <th scope="col" className="stat-column">
+                  Starty
                 </th>
-                <th scope="col">Strata</th>
+                <th scope="col" className="stat-column">
+                  Wygrane
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -81,7 +81,7 @@ export default async function StandingsPage() {
                 <tr
                   data-standing={`desktop-${d.driverId}`}
                   key={d.driverId}
-                  className={d.rank === 1 ? 'leader-row' : ''}
+                  className={`standing-place-${d.rank} ${d.rank === 1 ? 'leader-row' : ''}`}
                 >
                   <td className="rank">{d.rank}</td>
                   <th scope="row" className="driver-cell">
@@ -93,13 +93,20 @@ export default async function StandingsPage() {
                       </span>
                     </span>
                   </th>
-                  <td className="stat-column">{d.starts}</td>
-                  <td className="stat-column">{d.wins}</td>
+                  <td className="total-cell">
+                    <AnimatedNumber value={d.totalPoints} />
+                  </td>
+                  <td className="leader-gap">{d.diffToLeader}</td>
                   {races.map((r) => {
                     const result = d.racePoints[r.raceId]
                     return (
                       <td
                         key={r.raceId}
+                        className={
+                          result && result.status === 'finished' && result.position <= 3
+                            ? `round-podium-${result.position}`
+                            : ''
+                        }
                         title={
                           result
                             ? `P${result.position} · ${result.status.toUpperCase()}`
@@ -121,10 +128,8 @@ export default async function StandingsPage() {
                       </td>
                     )
                   })}
-                  <td className="total-cell">
-                    <AnimatedNumber value={d.totalPoints} />
-                  </td>
-                  <td className="muted">{d.diffToLeader}</td>
+                  <td className="stat-column">{d.starts}</td>
+                  <td className="stat-column">{d.wins}</td>
                 </tr>
               ))}
             </tbody>
@@ -135,7 +140,11 @@ export default async function StandingsPage() {
         </div>
         <div className="mobile-standings" aria-label="Klasyfikacja mobilna">
           {standings.map((driver) => (
-            <details data-standing={`mobile-${driver.driverId}`} key={driver.driverId}>
+            <details
+              className={`standing-place-${driver.rank}`}
+              data-standing={`mobile-${driver.driverId}`}
+              key={driver.driverId}
+            >
               <summary>
                 <span className="rank">{driver.rank}</span>
                 <span className="mobile-standing-name">
@@ -145,6 +154,7 @@ export default async function StandingsPage() {
                 <strong>
                   <AnimatedNumber value={driver.totalPoints} />
                   <small>pkt</small>
+                  <small className="mobile-leader-gap">{driver.diffToLeader}</small>
                 </strong>
                 <span className="expand-mark" aria-hidden="true">
                   +

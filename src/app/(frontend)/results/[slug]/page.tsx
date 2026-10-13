@@ -1,5 +1,6 @@
-import Link from 'next/link'
-import React from 'react'
+import Link from '@/components/AppLink'
+import { Podium } from '@/components/Podium'
+import { Status } from '@/components/Status'
 import { notFound } from 'next/navigation'
 import { getPayloadClient } from '@/lib/payload'
 import { calculateEntryPoints } from '@/lib/standings'
@@ -57,7 +58,7 @@ export default async function RaceResultDetailPage({
   const entries = [...resultDoc.entries].sort((a, b) => a.position - b.position)
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-10">
+    <div className="page-width page-content result-detail space-y-10">
       <div className="border-b border-[#303848] pb-6 space-y-3">
         <div className="flex flex-wrap items-center gap-3">
           <Link
@@ -67,12 +68,8 @@ export default async function RaceResultDetailPage({
             Wszystkie wyniki
           </Link>
           <span className="text-[#A1AAB8]">•</span>
-          <span className="font-mono text-xs px-2.5 py-0.5 bg-[#202633] text-[#F4F6F8] font-bold border border-[#303848]">
-            Runda {race.round}
-          </span>
-          <span className="font-mono text-xs px-2.5 py-0.5 bg-emerald-950/60 text-emerald-400 font-bold border border-emerald-800/40">
-            Zatwierdzone wyniki
-          </span>
+          <span className="result-round">Runda {race.round}</span>
+          <Status state="confirmed">Zatwierdzone wyniki</Status>
         </div>
 
         <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-black text-[#F4F6F8] tracking-tight">
@@ -98,11 +95,12 @@ export default async function RaceResultDetailPage({
           )}
         </div>
       </div>
+      <Podium entries={entries} />
       <div
         role="region"
         aria-label="Przewijana tabela wyników"
         tabIndex={0}
-        className="bg-[#151A24] border border-[#303848] overflow-x-auto"
+        className="desktop-result-table bg-[#151A24] border border-[#303848] overflow-x-auto"
       >
         <table className="w-full text-left text-sm whitespace-nowrap result-table">
           <thead>
@@ -169,21 +167,21 @@ export default async function RaceResultDetailPage({
 
                   {/* Finish status */}
                   <td className="py-3.5 px-3 text-center font-mono text-xs">
-                    <span
-                      className={`px-2 py-0.5 font-bold text-xs ${
-                        entry.finishStatus === 'finished'
-                          ? 'bg-emerald-950/60 text-emerald-400'
-                          : entry.finishStatus === 'dnf'
-                            ? 'bg-amber-950/60 text-amber-400'
-                            : 'bg-red-950/60 text-red-400'
-                      }`}
+                    <Status
+                      state={
+                        entry.classified === false || entry.finishStatus === 'dsq'
+                          ? 'rejected'
+                          : entry.finishStatus === 'finished'
+                            ? 'confirmed'
+                            : 'pending'
+                      }
                     >
                       {entry.classified === false
                         ? 'Nieskl.'
                         : entry.finishStatus === 'finished'
                           ? 'Meta'
                           : entry.finishStatus.toUpperCase()}
-                    </span>
+                    </Status>
                   </td>
 
                   {/* Gap */}
@@ -212,6 +210,68 @@ export default async function RaceResultDetailPage({
         </table>
       </div>
 
+      <div className="mobile-race-results" aria-label="Wyniki wyścigu — widok mobilny">
+        {entries.map((entry) => {
+          const driver = typeof entry.driver === 'object' ? entry.driver : null
+          const points = calculateEntryPoints(
+            entry.position,
+            entry.finishStatus,
+            entry.penaltyPoints ?? 0,
+            entry.classified !== false,
+          )
+          return (
+            <details key={entry.id || entry.position}>
+              <summary>
+                <span className="rank">P{entry.position}</span>
+                <span className="mobile-result-driver">
+                  <strong>{driver?.name || 'Kierowca'}</strong>
+                  <small>{driver?.team || 'Kierowca niezależny'}</small>
+                  <span>{entry.gap || '—'}</span>
+                </span>
+                <strong className="mobile-result-points">
+                  {points}
+                  <small>pkt</small>
+                </strong>
+                <span className="expand-mark" aria-hidden="true">
+                  +
+                </span>
+              </summary>
+              <div className="mobile-result-detail">
+                <Status
+                  state={
+                    entry.classified === false || entry.finishStatus === 'dsq'
+                      ? 'rejected'
+                      : entry.finishStatus === 'finished'
+                        ? 'confirmed'
+                        : 'pending'
+                  }
+                >
+                  {entry.classified === false
+                    ? 'Niesklasyfikowany'
+                    : entry.finishStatus === 'finished'
+                      ? 'Meta'
+                      : entry.finishStatus.toUpperCase()}
+                </Status>
+                <dl>
+                  <div>
+                    <dt>Numer startowy</dt>
+                    <dd>#{driver?.racingNumber || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>Najszybsze okrążenie</dt>
+                    <dd>{entry.bestLap || '—'}</dd>
+                  </div>
+                  <div>
+                    <dt>Kara punktowa</dt>
+                    <dd>{entry.penaltyPoints ?? 0}</dd>
+                  </div>
+                </dl>
+                {entry.note && <p>Stewardzi: {entry.note}</p>}
+              </div>
+            </details>
+          )
+        })}
+      </div>
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-4 border-t border-[#303848] text-xs font-mono text-[#A1AAB8]">
         <span>Punktacja uwzględnia sklasyfikowanie i kary sędziowskie.</span>
         <Link href="/standings" className="text-[#D9162C] font-bold hover:underline">

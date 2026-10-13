@@ -100,9 +100,11 @@ export function LiveStandings({ children }: { children: ReactNode }) {
   }, [router])
   useLayoutEffect(() => {
     const next = new Map<string, number>()
-    root.current?.querySelectorAll<HTMLElement>('[data-standing]').forEach((row) => {
-      const id = row.dataset.standing!
-      const top = row.offsetTop
+    // Measure visible rows together before starting any animation.
+    const rows = [...(root.current?.querySelectorAll<HTMLElement>('[data-standing]') || [])]
+      .filter((row) => row.getClientRects().length > 0)
+      .map((row) => ({ row, id: row.dataset.standing!, top: row.offsetTop }))
+    for (const { row, id, top } of rows) {
       const old = positions.current.get(id)
       next.set(id, top)
       if (
@@ -114,7 +116,7 @@ export function LiveStandings({ children }: { children: ReactNode }) {
           duration: 500,
           easing: ease,
         })
-    })
+    }
     positions.current = next
   }, [children])
   return <div ref={root}>{children}</div>

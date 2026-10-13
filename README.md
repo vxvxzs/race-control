@@ -34,6 +34,8 @@ Seed nie tworzy wspólnych, znanych haseł. Własnego administratora dodaje `npm
 
 ## Weryfikacja
 
+Polishing z 13.10.2026: [zakres i lekkie kontrole](docs/POLISH.md). Poniższe testy funkcjonalne dotyczą wcześniejszego wdrożenia bazowego; nie uruchamiano ich ponownie dla zmian wizualnych.
+
 Na publicznej domenie: **67 kontroli funkcjonalnych**, **43 kontrole widoków**, **10 kontroli prywatnych wartości** i **4 kontrole końcowe**. Prawdziwa wiadomość weryfikacyjna i decyzje dotarły do Gmaila; SPF, DKIM i DMARC ostatniej decyzji przeszły. Zweryfikowano sesje, dane, punktację i powiadomienia po nowym wdrożeniu.
 
 Lokalnie: 9 testów jednostkowych, 38 kontroli SQLite i 38 kontroli docelowego PostgreSQL. Build, TypeScript, lint (0 błędów, 25 ostrzeżeń any) i formatowanie przeszły. Audyt zależności produkcyjnych: 0 podatności. Szczegóły oraz granice testów: [docs/production-checks.json](docs/production-checks.json).

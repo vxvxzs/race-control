@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { Status } from './Status'
+import Link from '@/components/AppLink'
 import type { Race } from '@/payload-types'
 import { formatRaceTime } from '@/lib/dates'
 export function Schedule({ races }: { races: Race[] }) {
@@ -36,15 +37,16 @@ export function Schedule({ races }: { races: Race[] }) {
             </div>
             <span className="schedule-round">Runda {r.round}</span>
             <span className="schedule-time">{formatRaceTime(r.date)}</span>
-            <span
-              className={`schedule-status ${!completed && r.registrationStatus === 'open' ? 'is-open' : ''}`}
+            <Status
+              className="schedule-status"
+              state={completed ? 'confirmed' : r.registrationStatus === 'open' ? 'open' : 'neutral'}
             >
               {completed
                 ? 'Wyniki'
                 : r.registrationStatus === 'open'
                   ? 'Zapisy otwarte'
                   : 'Zapisy zamknięte'}
-            </span>
+            </Status>
           </Link>
         )
       })}

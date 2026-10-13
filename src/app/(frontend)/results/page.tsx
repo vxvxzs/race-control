@@ -1,6 +1,7 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { getPayloadClient } from '@/lib/payload'
 import { publishedResults } from '@/lib/season'
+import { Podium } from '@/components/Podium'
 import { formatRaceDate } from '@/lib/dates'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Wyniki wyścigów — Race Control' }
@@ -25,8 +26,6 @@ export default async function ResultsPage() {
           const classified = result.entries
             .filter((e) => e.classified !== false && e.finishStatus !== 'dsq')
             .sort((a, b) => a.position - b.position)
-          const winner = classified.find((e) => e.position === 1)
-          const winningDriver = typeof winner?.driver === 'object' ? winner.driver : null
           return (
             <article
               key={result.id}
@@ -45,22 +44,7 @@ export default async function ResultsPage() {
                   Pełny protokół
                 </Link>
               </div>
-              <div className="archive-winner">
-                <span className="muted">Zwycięzca wyścigu</span>
-                <strong>{winningDriver?.name || 'Bez sklasyfikowanego zwycięzcy'}</strong>
-                <small>{winningDriver?.team}</small>
-              </div>
-              <ol className="archive-podium">
-                {classified
-                  .filter((e) => e.position === 2 || e.position === 3)
-                  .map((e) => (
-                    <li key={e.id}>
-                      <span>P{e.position}</span>
-                      <strong>{typeof e.driver === 'object' ? e.driver.name : 'Kierowca'}</strong>
-                      <small>{e.gap || '—'}</small>
-                    </li>
-                  ))}
-              </ol>
+              <Podium entries={result.entries} />
             </article>
           )
         })}

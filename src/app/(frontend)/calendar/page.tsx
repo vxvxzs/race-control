@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { getPayloadClient } from '@/lib/payload'
 import { activeSeason } from '@/lib/season'
 import { Schedule } from '@/components/Schedule'

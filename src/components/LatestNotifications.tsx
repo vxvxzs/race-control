@@ -1,5 +1,5 @@
 'use client'
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 import { useEffect, useState } from 'react'
 type Notice = { id: number; message: string; link?: string; createdAt: string }
 export function LatestNotifications() {

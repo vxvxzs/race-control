@@ -55,6 +55,10 @@ export const Races: CollectionConfig = {
       type: 'text',
       required: true,
       label: 'Tor wyścigowy',
+      admin: {
+        description:
+          'Wspólne zdjęcie i plan rozpoznajemy z nazwy: Spa-Francorchamps, Monza, Nürburgring GP, Le Mans / Circuit de la Sarthe, Silverstone, Imola. Katalog i licencje: src/lib/tracks.ts.',
+      },
     },
     {
       name: 'trackCountry',

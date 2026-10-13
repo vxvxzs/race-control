@@ -1,5 +1,6 @@
 'use client'
-import Link from 'next/link'
+import { Status } from './Status'
+import Link from '@/components/AppLink'
 
 import { useRouter } from 'next/navigation'
 import React, { useState, useEffect, useRef } from 'react'
@@ -313,21 +314,21 @@ export function RaceRegistrationWidget({
           <div className="p-5 bg-[#080b12] border border-[#303848] space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <span className="text-xs font-mono text-[#A1AAB8]">Status zgłoszenia</span>
-              <span
-                className={`text-xs font-mono font-bold px-3 py-1 border ${
+              <Status
+                state={
                   existingReg.status === 'accepted'
-                    ? 'bg-emerald-950/60 text-emerald-400 border-emerald-700/60'
+                    ? 'confirmed'
                     : existingReg.status === 'rejected'
-                      ? 'bg-red-950/60 text-red-400 border-red-700/60'
-                      : 'bg-amber-950/60 text-amber-400 border-amber-700/60 '
-                }`}
+                      ? 'rejected'
+                      : 'pending'
+                }
               >
                 {existingReg.status === 'accepted'
-                  ? 'Zaakceptowano — potwierdzony start'
+                  ? 'Potwierdzony start'
                   : existingReg.status === 'rejected'
                     ? 'Zgłoszenie odrzucone'
                     : 'Oczekuje na decyzję stewardów'}
-              </span>
+              </Status>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs font-mono pt-2 border-t border-[#303848]">

@@ -1,4 +1,5 @@
-import Link from 'next/link'
+import { tracks } from '@/lib/tracks'
+import Link from '@/components/AppLink'
 export const metadata = { title: 'Materiały i licencje — Race Control' }
 export default function CreditsPage() {
   return (
@@ -21,26 +22,30 @@ export default function CreditsPage() {
           rozmiar, kompresja WebP oraz kadrowanie i nakładki CSS. Pochodne zdjęcia pozostają na CC
           BY-SA 4.0.
         </p>
-        <p>
-          <Link href="https://commons.wikimedia.org/wiki/File:24h_Nürburgring_2014_-_Night_Impression.jpg">
-            24h Nürburgring 2014 — Night Impression
-          </Link>{' '}
-          — Marc Strauch, <Link href="https://creativecommons.org/licenses/by/2.0/">CC BY 2.0</Link>
-          . Zmiany: rozmiar, kompresja WebP oraz kadrowanie i nakładki CSS.
-        </p>
+        {tracks.map((track) => (
+          <p key={track.id}>
+            <Link href={track.photo.source}>{track.photo.title}</Link> — {track.photo.author},{' '}
+            <Link href={track.photo.licenseURL}>{track.photo.license}</Link>. Zmiany: rozmiar,
+            kompresja WebP, kadrowanie i nakładki CSS. Pochodne zachowują wskazaną licencję.
+          </p>
+        ))}
       </section>
       <section className="rules-section" id="circuit">
-        <h2>Plan toru</h2>
+        <h2>Plany torów</h2>
+        {tracks.map((track) => (
+          <p key={track.id}>
+            <Link href={track.outline.source}>
+              {track.name} — {track.outline.variant}
+            </Link>{' '}
+            — {track.outline.author},{' '}
+            <Link href={track.outline.licenseURL}>{track.outline.license}</Link>. Zmiany:
+            wyodrębnienie obrysu, projekcja współrzędnych, kolory i perspektywa SVG. Pochodne
+            pozostają na wskazanej licencji.
+          </p>
+        ))}
         <p>
-          <Link href="https://commons.wikimedia.org/wiki/File:Circuit_Nürburgring-2013-GP.svg">
-            Circuit Nürburgring-2013-GP.svg
-          </Link>{' '}
-          — Pitlane02,{' '}
-          <Link href="https://creativecommons.org/licenses/by-sa/3.0/">CC BY-SA 3.0</Link>.
-          Wyodrębniono obrys pętli Grand Prix od 2002 roku, usunięto etykiety i poboczne trasy,
-          zmieniono kolory oraz sposób prezentacji. Zmodyfikowany plan pozostaje na CC BY-SA 3.0.
-          Perspektywa to efekt interfejsu, nie pomiar wysokości ani homologowany plan konkretnej
-          konfiguracji symulatora.
+          Perspektywa jest sposobem prezentacji płaskiego obrysu. Nie przedstawia wysokości terenu
+          ani homologacji wariantu konkretnego symulatora.
         </p>
       </section>
       <section className="rules-section">

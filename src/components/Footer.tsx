@@ -1,4 +1,4 @@
-import Link from 'next/link'
+import Link from '@/components/AppLink'
 export function Footer() {
   return (
     <footer className="site-footer">
