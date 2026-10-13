@@ -1,0 +1,121 @@
+'use client'
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
+
+const ease = 'cubic-bezier(.22,.68,0,1)'
+const seen = new Set<string>()
+
+// Content is always visible without JavaScript; the observer only adds an entry animation.
+export function Motion() {
+  const pathname = usePathname()
+  useEffect(() => {
+    const preference = matchMedia('(prefers-reduced-motion: reduce)')
+    if (preference.matches) return
+    const animations: Animation[] = []
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue
+          const element = entry.target as HTMLElement
+          const key = `${pathname}:${element.dataset.motionKey}`
+          observer.unobserve(element)
+          if (seen.has(key) || preference.matches) continue
+          seen.add(key)
+          const hero = element.hasAttribute('data-hero-reveal')
+          animations.push(
+            element.animate(
+              [
+                { opacity: 0, transform: `translateY(${hero ? 22 : 14}px)` },
+                { opacity: 1, transform: 'translateY(0)' },
+              ],
+              {
+                duration: hero ? 800 : 440,
+                delay: Number(element.dataset.delay || 0),
+                easing: ease,
+                fill: 'backwards',
+              },
+            ),
+          )
+        }
+      },
+      { threshold: 0.08 },
+    )
+    document
+      .querySelectorAll<HTMLElement>(
+        '[data-reveal], [data-hero-reveal], .schedule-row, .roster-row, .paddock-news article',
+      )
+      .forEach((el, i) => {
+        el.dataset.motionKey = el.id || String(i)
+        observer.observe(el)
+      })
+    const stop = () => {
+      if (preference.matches) animations.forEach((a) => a.cancel())
+    }
+    preference.addEventListener('change', stop)
+    return () => {
+      observer.disconnect()
+      animations.forEach((a) => a.cancel())
+      preference.removeEventListener('change', stop)
+    }
+  }, [pathname])
+  return null
+}
+
+export function AnimatedNumber({ value }: { value: number }) {
+  const [shown, setShown] = useState(value)
+  const previous = useRef(value)
+  useEffect(() => {
+    const from = previous.current
+    previous.current = value
+    if (from === value || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      setShown(value)
+      return
+    }
+    let frame: number
+    const start = performance.now()
+    const update = (time: number) => {
+      const progress = Math.min(1, (time - start) / 450)
+      setShown(Math.round(from + (value - from) * (1 - (1 - progress) ** 3)))
+      if (progress < 1) frame = requestAnimationFrame(update)
+    }
+    frame = requestAnimationFrame(update)
+    return () => cancelAnimationFrame(frame)
+  }, [value])
+  return (
+    <span className="animated-number" aria-label={String(value)}>
+      {shown}
+    </span>
+  )
+}
+
+export function LiveStandings({ children }: { children: ReactNode }) {
+  const router = useRouter()
+  const root = useRef<HTMLDivElement>(null)
+  const positions = useRef(new Map<string, number>())
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (!document.hidden) router.refresh()
+    }, 30000)
+    return () => clearInterval(timer)
+  }, [router])
+  useLayoutEffect(() => {
+    const next = new Map<string, number>()
+    root.current?.querySelectorAll<HTMLElement>('[data-standing]').forEach((row) => {
+      const id = row.dataset.standing!
+      const top = row.offsetTop
+      const old = positions.current.get(id)
+      next.set(id, top)
+      if (
+        old !== undefined &&
+        old !== top &&
+        !matchMedia('(prefers-reduced-motion: reduce)').matches
+      )
+        row.animate([{ transform: `translateY(${old - top}px)` }, { transform: 'translateY(0)' }], {
+          duration: 500,
+          easing: ease,
+        })
+    })
+    positions.current = next
+  }, [children])
+  return <div ref={root}>{children}</div>
+}

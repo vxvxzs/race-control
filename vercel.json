@@ -1,0 +1,11 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build:production",
+  "regions": ["dub1"],
+  "crons": [
+    {
+      "path": "/api/ops/mail",
+      "schedule": "0 7 * * *"
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+:root {
+  --color-racing-dark: #080b12;
+  --color-racing-surface: #151a24;
+  --color-racing-card: #202633;
+  --color-racing-border: #303848;
+  --color-racing-red: #f21c32;
+  --color-racing-white: #f4f6f8;
+  --color-racing-muted: #a1aab8;
+  --color-racing-dim: #999fa5;
+  --font-headline: 'Segoe UI', Arial, sans-serif;
+  --font-sans: 'Segoe UI', Arial, sans-serif;
+  --font-mono: 'Segoe UI', Arial, sans-serif;
+  --color-action: #d9162c;
+  --color-blue: #008cf5;
+  --ease: cubic-bezier(0.22, 0.68, 0, 1);
+  --motion-fast: 160ms;
+  --motion-state: 450ms;
+}

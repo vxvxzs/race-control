@@ -1,0 +1,82 @@
+{
+  "name": "race-control",
+  "version": "1.0.0",
+  "description": "RACE CONTROL - Professional Simracing League Management System",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "cross-env NODE_OPTIONS=\"--max-old-space-size=4096\" next build",
+    "dev": "cross-env NODE_OPTIONS=--no-deprecation next dev --hostname 127.0.0.1",
+    "generate:importmap": "cross-env NODE_OPTIONS=--no-deprecation payload generate:importmap",
+    "generate:types": "cross-env NODE_OPTIONS=--no-deprecation payload generate:types",
+    "payload": "cross-env NODE_OPTIONS=--no-deprecation payload",
+    "start": "next start --hostname 127.0.0.1",
+    "seed": "tsx ./src/seed.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:integration": "tsx tests/integration.ts",
+    "mail:worker": "tsx src/mail-worker.ts",
+    "mail:once": "tsx src/mail-worker.ts --once",
+    "security:rotate-demo": "tsx src/rotate-demo.ts",
+    "db:push": "tsx src/schema.ts",
+    "admin:create": "tsx src/create-admin.ts",
+    "test:e2e": "tsx tests/http-flow.ts",
+    "lint": "eslint src tests",
+    "format:check": "prettier --check src tests *.md *.json *.mjs *.ts",
+    "demo:curate": "tsx src/prepare-demo.ts",
+    "test:visual": "tsx tests/visual.ts",
+    "build:production": "tsx src/production-migrate.ts && npm run build",
+    "db:migrate": "tsx src/production-migrate.ts",
+    "db:export-demo": "tsx src/export-demo.ts",
+    "db:import-demo": "tsx src/import-demo.ts",
+    "reviewer:revoke": "tsx src/revoke-reviewer.ts",
+    "db:backup": "tsx src/backup-production.ts",
+    "demo:restore": "tsx src/restore-demo.ts"
+  },
+  "dependencies": {
+    "@payloadcms/db-postgres": "3.90.2",
+    "@payloadcms/db-sqlite": "3.90.2",
+    "@payloadcms/next": "3.90.2",
+    "@payloadcms/richtext-lexical": "3.90.2",
+    "@payloadcms/ui": "3.90.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "0.45.2",
+    "graphql": "^16.8.1",
+    "lucide-react": "^0.475.0",
+    "next": "^15.5.27",
+    "nodemailer": "^10.1.0",
+    "payload": "3.90.2",
+    "react": "19.0.0",
+    "react-dom": "19.0.0"
+  },
+  "devDependencies": {
+    "@eslint/eslintrc": "^3.3.7",
+    "@playwright/test": "^1.64.0",
+    "@types/node": "^22.13.1",
+    "@types/nodemailer": "^8.0.2",
+    "@types/react": "19.0.0",
+    "@types/react-dom": "19.0.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^15.5.27",
+    "postcss": "^8.5.30",
+    "prettier": "^3.9.10",
+    "tailwindcss": "^3.4.17",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  },
+  "overrides": {
+    "postcss": "^8.5.30",
+    "postcss-selector-parser": "^7.1.6",
+    "sharp": "^0.35.5",
+    "undici": "^7.30.0",
+    "@esbuild-kit/core-utils": {
+      "esbuild": "^0.28.2"
+    },
+    "sass": "1.105.1"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}
