@@ -48,3 +48,7 @@ Zrzuty w `docs/screenshots` dokumentują działającą aplikację, zawierają po
 - Wszystkie modele korzystają z tego samego SVG/CSS. To przestrzenna prezentacja planu 2D bez deklarowania danych wysokościowych. Żaden plan nie zastępuje obrysu innego toru.
 
 Katalog `src/lib/tracks.ts` łączy istniejące pole CMS `races.track` ze zdjęciem, kadrem, krajem, długością, konfiguracją, obrysem i licencją. Nie dodano tabeli ani migracji. Zdjęcia/obrysy edytuje się w katalogu kodu; ich wybór wynika z nazwy toru w CMS. Nowa, nieznana lokalizacja wymaga dodania zasobów do katalogu — aplikacja nie podstawi przypadkowego toru.
+
+## Wskaźnik miejsc
+
+Referencję HTML/CSS/GSAP dostarczył właściciel projektu. Animacja korzysta z npm `gsap@3.12.5`, tej samej wersji co referencja, bez CDN. Pakiet deklaruje [GSAP Standard License](https://gsap.com/standard-license); licencja kodu projektu nie zastępuje warunków zależności.

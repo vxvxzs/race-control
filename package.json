@@ -34,6 +34,7 @@
     "demo:restore": "tsx scripts/restore-demo.ts",
     "test:recovery": "tsx tests/password-recovery.integration.ts",
     "test:demo-tools": "tsx tests/demo-tools.integration.ts",
+    "test:slots": "tsx tests/race-slots.browser.ts",
     "test:register-name": "tsx tests/register-name.browser.ts"
   },
   "dependencies": {
@@ -47,6 +48,7 @@
     "dotenv": "^16.4.7",
     "drizzle-orm": "0.45.2",
     "graphql": "^16.8.1",
+    "gsap": "3.12.5",
     "lucide-react": "^0.475.0",
     "next": "^15.5.27",
     "nodemailer": "^10.1.0",

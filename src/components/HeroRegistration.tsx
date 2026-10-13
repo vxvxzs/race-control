@@ -1,36 +1,60 @@
 'use client'
 import Link from '@/components/AppLink'
 import { useEffect, useState } from 'react'
-import { Status } from './Status'
-import { SlotMeter } from './SlotMeter'
+import { useRouter } from 'next/navigation'
+import { RaceSlots } from './RaceSlots'
+
 type Snapshot = {
   acceptedCount: number
   maxParticipants: number
   registrationStatus: 'open' | 'closed'
   raceStatus: 'upcoming' | 'completed'
 }
-export function HeroRegistration({ slug, initial }: { slug: string; initial: Snapshot }) {
-  const [race, setRace] = useState(initial)
+export function HeroRegistration({
+  slug,
+  initial,
+}: {
+  slug: string | null
+  initial: Snapshot | null
+}) {
+  const router = useRouter()
+  const [snapshot, setSnapshot] = useState({ slug, value: initial })
+  const race = snapshot.slug === slug ? snapshot.value : initial
   useEffect(() => {
-    let active = true
+    setSnapshot({ slug, value: initial })
+  }, [slug, initial])
+  useEffect(() => {
+    const controller = new AbortController()
+    let fetching = false
     const refresh = async () => {
-      if (document.hidden) return
+      if (document.hidden || fetching) return
+      fetching = true
       try {
-        const response = await fetch(`/api/races/${slug}/snapshot`, { cache: 'no-store' })
-        if (response.ok && active) {
-          const data: Snapshot = await response.json()
-          if (active) setRace(data)
-        }
+        const response = await fetch('/api/races/upcoming', {
+          cache: 'no-store',
+          signal: controller.signal,
+        })
+        if (!response.ok || controller.signal.aborted) return
+        const data: { race: (Snapshot & { slug: string }) | null } = await response.json()
+        if (controller.signal.aborted) return
+        if ((data.race?.slug ?? null) !== slug) {
+          router.refresh()
+        } else setSnapshot({ slug, value: data.race })
       } catch {
         /* Keep the last confirmed snapshot on a temporary connection failure. */
+      } finally {
+        fetching = false
       }
     }
     const timer = setInterval(refresh, 15000)
+    document.addEventListener('visibilitychange', refresh)
     return () => {
-      active = false
+      controller.abort()
       clearInterval(timer)
+      document.removeEventListener('visibilitychange', refresh)
     }
-  }, [slug])
+  }, [slug, router])
+  if (!race || !slug) return null
   const free = Math.max(0, race.maxParticipants - race.acceptedCount)
   const open = race.registrationStatus === 'open' && race.raceStatus === 'upcoming'
   return (
@@ -41,23 +65,13 @@ export function HeroRegistration({ slug, initial }: { slug: string; initial: Sna
         </Link>
       </div>
       <div className="hero-availability">
-        <Status
-          state={
-            open && free > 0 ? 'open' : race.raceStatus === 'completed' ? 'confirmed' : 'neutral'
-          }
-        >
-          {race.raceStatus === 'completed'
-            ? 'Wyścig zakończony'
-            : open
-              ? free > 0
-                ? 'Zapisy otwarte'
-                : 'Lista pełna'
-              : 'Zapisy zamknięte'}
-        </Status>
-        <span>
-          {free} z {race.maxParticipants} miejsc wolnych
-        </span>
-        <SlotMeter accepted={race.acceptedCount} capacity={race.maxParticipants} />
+        <RaceSlots
+          key={slug}
+          accepted={race.acceptedCount}
+          capacity={race.maxParticipants}
+          registrationStatus={race.registrationStatus}
+          raceStatus={race.raceStatus}
+        />
       </div>
     </>
   )

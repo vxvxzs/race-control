@@ -58,26 +58,32 @@ export default async function HomePage() {
             </h1>
             <p>Sezon {activeSeason}</p>
           </div>
-          {upcoming ? (
-            <div className="hero-event" data-hero-reveal data-delay="100">
-              <p className="event-round">Najbliższy wyścig · Runda {upcoming.round}</p>
-              <h2>{upcoming.track}</h2>
-              <p className="hero-date">
-                {formatRaceDate(upcoming.date)} · {formatRaceTime(upcoming.date)}
-              </p>
-              <HeroRegistration
-                slug={upcoming.slug}
-                initial={{
-                  acceptedCount: count.totalDocs,
-                  maxParticipants: upcoming.maxParticipants,
-                  registrationStatus: upcoming.registrationStatus,
-                  raceStatus: upcoming.raceStatus,
-                }}
-              />
-            </div>
-          ) : (
-            <p className="hero-event">Kalendarz następnego sezonu pojawi się tutaj.</p>
-          )}
+          <div className="hero-event" data-hero-reveal data-delay="100">
+            {upcoming ? (
+              <>
+                <p className="event-round">Najbliższy wyścig · Runda {upcoming.round}</p>
+                <h2>{upcoming.track}</h2>
+                <p className="hero-date">
+                  {formatRaceDate(upcoming.date)} · {formatRaceTime(upcoming.date)}
+                </p>
+              </>
+            ) : (
+              <p>Kalendarz następnego sezonu pojawi się tutaj.</p>
+            )}
+            <HeroRegistration
+              slug={upcoming?.slug ?? null}
+              initial={
+                upcoming
+                  ? {
+                      acceptedCount: count.totalDocs,
+                      maxParticipants: upcoming.maxParticipants,
+                      registrationStatus: upcoming.registrationStatus,
+                      raceStatus: upcoming.raceStatus,
+                    }
+                  : null
+              }
+            />
+          </div>
           {upcoming && (
             <div className="hero-clock" data-hero-reveal data-delay="240">
               <Countdown date={upcoming.date} />
