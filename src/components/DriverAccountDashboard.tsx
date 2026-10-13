@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import Link from '@/components/AppLink'
 import { Status } from './Status'
 import { AnimatedNumber } from './Motion'
@@ -210,9 +211,9 @@ export function DriverAccountDashboard({
             </label>
           ))}
           <div className="full">
-            <button className="button-primary" disabled={busy}>
+            <RaceButton type="submit" className="button-primary" loading={busy}>
               {busy ? 'Zapisywanie…' : 'Zapisz zmiany'}
-            </button>
+            </RaceButton>
           </div>
         </form>
       )}

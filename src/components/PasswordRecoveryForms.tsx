@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import { useEffect, useState, type FormEvent } from 'react'
 import { useSearchParams } from 'next/navigation'
 import Link from './AppLink'
@@ -57,9 +58,9 @@ export function ForgotPasswordForm() {
             className={inputClass}
           />
           {error && <p role="alert">{error}</p>}
-          <button type="submit" disabled={busy} className={buttonClass}>
+          <RaceButton type="submit" loading={busy} className={buttonClass}>
             {busy ? 'Wysyłanie prośby…' : 'Wyślij link do zmiany hasła'}
-          </button>
+          </RaceButton>
         </form>
       )}
       <Link className="text-link" href="/login">
@@ -111,9 +112,9 @@ export function ResetPasswordForm() {
       {success ? (
         <>
           <p role="status">Hasło zostało zmienione. Poprzednie sesje zostały zakończone.</p>
-          <Link className={buttonClass + ' block text-center'} href="/login">
+          <RaceButton className={buttonClass + ' block text-center'} href="/login">
             Zaloguj się nowym hasłem
-          </Link>
+          </RaceButton>
         </>
       ) : !valid ? (
         <p role="alert">Link jest nieprawidłowy lub niekompletny. Poproś o nowy link.</p>
@@ -148,9 +149,9 @@ export function ResetPasswordForm() {
               />
             </div>
             {error && <p role="alert">{error}</p>}
-            <button type="submit" disabled={busy} className={buttonClass}>
+            <RaceButton type="submit" loading={busy} className={buttonClass}>
               {busy ? 'Zapisywanie…' : 'Zmień hasło'}
-            </button>
+            </RaceButton>
           </form>
         </>
       )}

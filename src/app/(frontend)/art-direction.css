@@ -201,7 +201,7 @@ textarea:focus {
   margin-top: 22px;
 }
 .slots {
-  --slots-accent: var(--color-racing-red);
+  --slots-accent: var(--color-action);
   --slots-free: rgba(255, 255, 255, 0.16);
   width: min(350px, 100%);
   color: #fff;

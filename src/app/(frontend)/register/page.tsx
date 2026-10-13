@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import Link from '@/components/AppLink'
 
 import { RacePhoto } from '@/components/RacePhoto'
@@ -254,13 +255,13 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <button
+              <RaceButton
                 type="submit"
-                disabled={loading}
+                loading={loading}
                 className="w-full py-3.5 bg-[#D9162C] hover:bg-[#B91225] text-white font-headline text-base font-extrabold tracking-wider transition-colors disabled:opacity-50 mt-2"
               >
                 {loading ? 'Tworzenie konta...' : 'Zarejestruj się i dołącz'}
-              </button>
+              </RaceButton>
             </form>
 
             <div className="pt-2 text-center text-xs text-[#A1AAB8]">

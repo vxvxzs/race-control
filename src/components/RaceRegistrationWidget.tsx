@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import { Status } from './Status'
 import Link from '@/components/AppLink'
 
@@ -286,18 +287,19 @@ export function RaceRegistrationWidget({
             Zaloguj się, aby wysłać zgłoszenie. Nowe konto wymaga potwierdzenia adresu e-mail.
           </p>
           <div className="flex flex-wrap items-center gap-4 pt-2">
-            <Link
+            <RaceButton
               href={`/login?redirect=/races/${raceSlug}`}
               className="px-6 py-3 bg-[#D9162C] hover:bg-[#B91225] text-white font-headline text-base font-bold tracking-wider transition-colors"
             >
               Zaloguj się i dołącz
-            </Link>
-            <Link
+            </RaceButton>
+            <RaceButton
+              variant="outline"
               href="/register"
               className="px-6 py-3 bg-[#202633] hover:bg-[#303848] border border-[#303848] text-[#F4F6F8] font-headline text-base font-bold tracking-wider transition-colors"
             >
               Utwórz konto
-            </Link>
+            </RaceButton>
           </div>
         </div>
       )}
@@ -468,13 +470,13 @@ export function RaceRegistrationWidget({
                   <span className="text-xs text-[#A1AAB8]">
                     Zgłoszenie podlega weryfikacji przez administratora ligi.
                   </span>
-                  <button
+                  <RaceButton
                     type="submit"
-                    disabled={submitting}
+                    loading={submitting}
                     className="w-full sm:w-auto px-8 py-3.5 bg-[#D9162C] hover:bg-[#B91225] text-white font-headline text-base font-extrabold tracking-wider transition-colors disabled:opacity-50"
                   >
                     {submitting ? 'Przesyłanie zgłoszenia...' : 'Zapisz się na wyścig'}
-                  </button>
+                  </RaceButton>
                 </div>
               </form>
             )}

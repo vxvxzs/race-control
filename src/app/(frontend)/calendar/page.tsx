@@ -2,6 +2,7 @@ import Link from '@/components/AppLink'
 import { getPayloadClient } from '@/lib/payload'
 import { activeSeason } from '@/lib/season'
 import { Schedule } from '@/components/Schedule'
+import { getScheduleState } from '@/lib/schedule'
 export const dynamic = 'force-dynamic'
 export const metadata = { title: 'Kalendarz — Race Control' }
 export default async function CalendarPage() {
@@ -12,6 +13,7 @@ export default async function CalendarPage() {
     sort: 'date',
     pagination: false,
   })
+  const scheduleState = await getScheduleState(payload, races)
   const seasons = [...new Set(races.map((r) => r.season || activeSeason))].sort((a, b) =>
     a === activeSeason ? -1 : b === activeSeason ? 1 : a.localeCompare(b),
   )
@@ -26,7 +28,10 @@ export default async function CalendarPage() {
             <h2>{season === activeSeason ? 'GT3 Sprint Series' : season}</h2>
             <span className="muted">{season === activeSeason ? season : ''}</span>
           </div>
-          <Schedule races={races.filter((r) => (r.season || activeSeason) === season)} />
+          <Schedule
+            races={races.filter((r) => (r.season || activeSeason) === season)}
+            state={scheduleState}
+          />
         </section>
       ))}
       {!races.length && <p className="empty-state">Brak zaplanowanych wyścigów.</p>}
