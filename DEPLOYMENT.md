@@ -40,6 +40,10 @@ Odtworzenie sportowego demo: najpierw `npm run db:backup`, potem `npm run demo:r
 
 Kolekcja Media była pusta; frontend korzysta z wersjonowanych WebP i SVG o opisanych licencjach w ASSETS.md. Tworzenie/zmiana uploadów na Vercelu jest wyłączona. Nie wdrażano zbędnego storage. Przed przyszłym udostępnieniem uploadów konieczny trwały adapter Blob/S3 i osobne testy.
 
-Vercel Hobby jest bezpłatny dla osobistego, niekomercyjnego demo; jego limity są współdzielone z innymi projektami konta. Nie zmieniano abonamentu i nie włączano płatnych usług. Neon i Resend zależą od planów istniejących kont. Aktualne darmowe limity i wyniki rzeczywistych testów będą opisane w raporcie końcowym. Codzienny cron jest mechanizmem odzyskania, a nie gwarancją natychmiastowego ponowienia po awarii dostawcy.
+Vercel Hobby jest bezpłatny dla osobistego, niekomercyjnego demo; jego limity są współdzielone z innymi projektami konta. Nie zmieniano abonamentu i nie włączano płatnych usług. Neon i Resend zależą od planów istniejących kont. Darmowe limity: Neon 1 GB i 100 CU-h na projekt/miesiąc, Resend 3000 wiadomości/miesiąc i 100/dzień, Vercel m.in. 100 GB transferu, 1 mln wywołań i 4 CPU-h. Są to limity planów, nie odczyt pozostałego salda istniejących kont. Vercel Hobby potwierdzono; billing Neon/Resend nie jest dostępny z podanych uprawnień. Nie zmieniano planów ani overages. Baza w kontroli miała ok. 9,4 MiB według pg_database_size (nie jest to licznik rozliczeniowy). Codzienny cron jest mechanizmem odzyskania, a nie gwarancją natychmiastowego ponowienia po awarii dostawcy.
 
-Stan testów publicznych: w trakcie wdrożenia. Nie traktować samego tego dokumentu jako potwierdzenia gotowości.
+Stan testów publicznych: PASS dla krytycznych przepływów, Gmail delivery oraz trwałości po nowym wdrożeniu. Tymczasowe dane QA usunięto i przywrócono identyczny baseline sportowy. Szczegółowe wyniki i granice: docs/production-checks.json oraz HANDOFF.md.
+
+Dodano dedykowany TXT _dmarc.mail.jalochabuilds.site, p=none, bez zmian strony lub innych projektów. Gmail potwierdził SPF/DKIM/DMARC pass. Wysyłkę z domeny potwierdzono operacyjnie; pole status domeny z panelu/API zarządzania nie było odczytane z klucza ograniczonego do wysyłki.
+
+Źródła limitów, sprawdzone 13.10.2026: [Vercel Hobby](https://vercel.com/docs/plans/hobby), [Neon Free od 2.10.2026](https://neon.com/blog/neon-free-plan-1-gb-per-project), [Resend quotas](https://resend.com/docs/knowledge-base/account-quotas-and-limits).
