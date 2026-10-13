@@ -139,12 +139,10 @@ export default async function RaceResultDetailPage({
                     isWinner ? 'bg-[#D9162C]/5 border-l-2 border-[#D9162C]' : ''
                   }`}
                 >
-                  {/* Position */}
                   <td className="py-3.5 px-3 text-center font-headline text-lg font-black text-[#F4F6F8]">
                     <span className={isWinner ? 'text-[#D9162C]' : ''}>{`P${entry.position}`}</span>
                   </td>
 
-                  {/* Racing Number */}
                   <td className="py-3.5 px-3 text-center">
                     {driver?.racingNumber ? (
                       <span className="font-mono text-xs font-bold px-1.5 py-0.5 bg-[#303848] text-[#F4F6F8]">
@@ -155,17 +153,14 @@ export default async function RaceResultDetailPage({
                     )}
                   </td>
 
-                  {/* Driver */}
                   <td className="py-3.5 px-4 font-semibold text-[#F4F6F8]">
                     {driver?.name || 'Kierowca'}
                   </td>
 
-                  {/* Team */}
                   <td className="py-3.5 px-4 text-xs text-[#A1AAB8] hidden sm:table-cell">
                     {driver?.team || 'Prywatny'}
                   </td>
 
-                  {/* Finish status */}
                   <td className="py-3.5 px-3 text-center font-mono text-xs">
                     <Status
                       state={
@@ -184,22 +179,18 @@ export default async function RaceResultDetailPage({
                     </Status>
                   </td>
 
-                  {/* Gap */}
                   <td className="py-3.5 px-4 font-mono text-xs text-[#F4F6F8]">
                     {entry.gap || '—'}
                   </td>
 
-                  {/* Best Lap */}
                   <td className="py-3.5 px-4 font-mono text-xs text-center text-[#A1AAB8]">
                     {entry.bestLap || '—'}
                   </td>
 
-                  {/* Points Awarded */}
                   <td className="points-cell py-3.5 px-4 text-right font-mono font-bold text-base text-[#F4F6F8]">
                     +{points}
                   </td>
 
-                  {/* Notes / Penalties */}
                   <td className="py-3.5 px-4 text-xs text-[#A1AAB8] hidden md:table-cell">
                     {entry.note || '—'}
                   </td>

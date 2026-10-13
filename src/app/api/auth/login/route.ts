@@ -42,7 +42,6 @@ export async function POST(req: Request) {
       },
     })
 
-    // Set payload-token cookie
     response.cookies.set({
       name: 'payload-token',
       value: result.token,

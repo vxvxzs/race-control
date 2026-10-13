@@ -104,11 +104,9 @@ export function RaceRegistrationWidget({
     }
   }, [raceSlug, router])
 
-  // Form state
   const [carModel, setCarModel] = useState('')
   const [racingNumber, setRacingNumber] = useState('')
 
-  // Check auth and current registration status
   useEffect(() => {
     async function loadState() {
       try {
@@ -122,7 +120,6 @@ export function RaceRegistrationWidget({
             initialized.current = true
           }
 
-          // Check if driver is already registered
           const regRes = await fetch(
             `/api/races/${raceSlug}/check-registration?userId=${authData.user.id}`,
           )
@@ -254,7 +251,6 @@ export function RaceRegistrationWidget({
         <SlotMeter accepted={acceptedCount} capacity={maxParticipants} />
       </div>
 
-      {/* Alerts */}
       {errorMsg && (
         <div
           role="alert"
@@ -272,14 +268,12 @@ export function RaceRegistrationWidget({
         </div>
       )}
 
-      {/* Case 1: Completed Race */}
       {liveRaceStatus === 'completed' && (
         <div className="p-4 bg-[#080b12] border border-[#303848] text-sm text-[#A1AAB8]">
           Wyścig zakończony. Sprawdź opublikowany protokół w zakładce Wyniki.
         </div>
       )}
 
-      {/* Case 2: User is NOT logged in */}
       {!user && liveRaceStatus === 'upcoming' && !isOpen && (
         <p className="muted text-sm">Zapisy na ten wyścig są zamknięte.</p>
       )}
@@ -308,7 +302,6 @@ export function RaceRegistrationWidget({
         </div>
       )}
 
-      {/* Case 3: User IS logged in AND has existing registration */}
       {user && existingReg && existingReg.status !== 'cancelled' && (
         <div className="space-y-5">
           <div className="p-5 bg-[#080b12] border border-[#303848] space-y-3">
@@ -350,7 +343,6 @@ export function RaceRegistrationWidget({
               </div>
             </div>
 
-            {/* If accepted, show server password! */}
             {existingReg.status === 'accepted' && (
               <div className="mt-4 p-3 bg-emerald-950/30 border border-emerald-800/40">
                 <span className="text-xs font-mono text-emerald-300 block mb-1 font-bold">
@@ -365,7 +357,6 @@ export function RaceRegistrationWidget({
               </div>
             )}
 
-            {/* If rejected, show admin note */}
             {existingReg.status === 'rejected' && existingReg.adminNote && (
               <div className="mt-3 p-3 bg-red-950/20 border border-red-800/30 text-xs">
                 <span className="text-red-400 font-bold block mb-1">Uwagi sędziów:</span>
@@ -374,7 +365,6 @@ export function RaceRegistrationWidget({
             )}
           </div>
 
-          {/* Cancel button if registration is still open */}
           {isOpen && ['pending', 'accepted'].includes(existingReg.status) && (
             <div className="flex items-center justify-between pt-2">
               <span className="text-xs text-[#A1AAB8]">
@@ -393,7 +383,6 @@ export function RaceRegistrationWidget({
         </div>
       )}
 
-      {/* Case 4: User IS logged in AND NOT registered (or cancelled) */}
       {user &&
         (!existingReg || existingReg.status === 'cancelled') &&
         liveRaceStatus === 'upcoming' && (

@@ -37,7 +37,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
 
     const payload = await getPayloadClient()
 
-    // 1. Fetch race by slug
     const raceQuery = await payload.find({
       collection: 'races',
       where: {
@@ -57,7 +56,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
 
     const race = raceQuery.docs[0]
 
-    // 2. Check if registration is open
     if (!race.isPublished || race.registrationStatus !== 'open') {
       return NextResponse.json(
         { error: 'Zapisy na ten wyścig są aktualnie zamknięte.' },
@@ -69,7 +67,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       return NextResponse.json({ error: 'Ten wyścig został już zakończony.' }, { status: 400 })
     }
 
-    // 3. Check existing registrations for this race
     const existingRegistrations = await payload.find({
       collection: 'registrations',
       where: {
@@ -88,7 +85,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       },
     })
 
-    // Check if user has an active registration
     const activeReg = existingRegistrations.docs.find(
       (r) => r.status === 'pending' || r.status === 'accepted',
     )
@@ -105,7 +101,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       )
     }
 
-    // 4. Check participant limits
     const acceptedCount = await payload.count({
       collection: 'registrations',
       where: {
@@ -131,7 +126,6 @@ async function handlePOST(req: Request, { params }: { params: Promise<{ slug: st
       )
     }
 
-    // 5. Create new registration
     const registration = await payload.create({
       collection: 'registrations',
       data: {

@@ -71,7 +71,6 @@ export default function RegisterPage() {
 
       setSuccessMsg('Konto utworzone pomyślnie! Logowanie...')
 
-      // Auto login
       const loginRes = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

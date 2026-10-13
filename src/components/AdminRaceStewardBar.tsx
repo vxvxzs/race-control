@@ -87,7 +87,6 @@ export function AdminRaceStewardBar({ raceId, pendingList: initialList }: Props)
         </div>
       )}
 
-      {/* Pending registrations queue */}
       <div>
         <span className="text-xs font-mono text-[#A1AAB8] block mb-2">
           Kolejka oczekujących zgłoszeń do zatwierdzenia ({list.length}):

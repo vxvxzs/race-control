@@ -47,9 +47,7 @@ export const Registrations: CollectionConfig = {
       ],
       access: {
         update: ({ req: { user }, data }) => {
-          // Admin can change to any status
           if (user?.role === 'admin') return true
-          // User can only cancel
           return data?.status === 'cancelled'
         },
       },
