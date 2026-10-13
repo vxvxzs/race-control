@@ -1,0 +1,16 @@
+.git
+.env
+.env.*
+!.env.example
+node_modules
+.next*
+work
+media
+*.db*
+*.log
+*.private.json
+*.tsbuildinfo
+test.env
+test-results
+playwright-report
+outputs

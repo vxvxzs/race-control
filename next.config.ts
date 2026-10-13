@@ -37,7 +37,11 @@ export default (phase: string) =>
   withPayload(
     {
       ...nextConfig,
-      distDir: phase === PHASE_DEVELOPMENT_SERVER ? '.next-development' : '.next-production',
+      distDir: process.env.VERCEL
+        ? '.next'
+        : phase === PHASE_DEVELOPMENT_SERVER
+          ? '.next-development'
+          : '.next-production',
     },
     { devBundleServerPackages: false },
   )
