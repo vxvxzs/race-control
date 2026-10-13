@@ -1,0 +1,131 @@
+:where(.race-button) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 0 18px;
+  font: inherit;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+}
+.race-button.race-button {
+  --button-red: var(--color-action, #e8132b);
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1.5px solid var(--button-red);
+  border-radius: 0;
+  background: var(--button-red);
+  color: #fff;
+  transform: none;
+  box-shadow: none;
+  transition: color 0.25s;
+}
+.race-button.race-button--outline {
+  background: transparent;
+  color: #ff6475;
+}
+.season-band .race-button--outline {
+  color: #d10f26;
+}
+.race-button__label {
+  position: relative;
+  z-index: 1;
+}
+.race-button__fill {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  bottom: 0;
+  left: -20%;
+  width: 140%;
+  background: #9d0b1b;
+  pointer-events: none;
+  transform: translateX(-110%) skewX(-18deg);
+}
+.race-button--outline .race-button__fill {
+  background: var(--button-red);
+}
+.race-button:not([data-motion='true']) .race-button__fill {
+  display: none;
+}
+.race-button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.season-band .race-button:focus-visible {
+  outline-color: #0a0d16;
+}
+.race-button[aria-disabled='true'] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.race-button:not([aria-disabled='true']):focus-visible {
+  color: #fff;
+}
+.race-button:not([data-motion='true']):not([aria-disabled='true']):focus-visible {
+  background: #9d0b1b;
+}
+.race-button--outline:not([data-motion='true']):not([aria-disabled='true']):focus-visible {
+  background: var(--button-red);
+}
+@media (hover: hover) {
+  .race-button:not([aria-disabled='true']):hover {
+    color: #fff;
+  }
+  .race-button:not([data-motion='true']):not([aria-disabled='true']):hover {
+    background: #9d0b1b;
+  }
+  .race-button--outline:not([data-motion='true']):not([aria-disabled='true']):hover {
+    background: var(--button-red);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .race-button.race-button {
+    transition: none;
+  }
+  .race-button .race-button__fill {
+    display: none;
+  }
+}
+.schedule-action {
+  justify-self: end;
+}
+.schedule-action .race-button {
+  height: 38px;
+  min-width: 128px;
+  font-size: 14px;
+}
+.schedule-closed {
+  display: block;
+  min-width: 128px;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: right;
+  color: #475363;
+}
+.calendar-page .schedule-closed {
+  color: var(--color-racing-muted);
+}
+@media (min-width: 641px) and (max-width: 1000px) {
+  .schedule-list .schedule-row {
+    grid-template-columns: 75px minmax(0, 1fr) 80px 140px;
+  }
+}
+@media (max-width: 640px) {
+  .schedule-list .schedule-row {
+    grid-template-columns: 60px minmax(0, 1fr);
+  }
+  .schedule-action {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .schedule-closed {
+    text-align: left;
+  }
+  .schedule-track {
+    min-width: 0;
+  }
+}

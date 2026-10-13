@@ -19,6 +19,7 @@ Dla lokalnej SQLite wykonaj `npm run db:push`, opcjonalnie `npm run seed`, nast�
 - `npm run test:integration`, `npm run test:recovery` i `npm run test:demo-tools` — osobne lokalne bazy SQLite.
 - `npm run build`, następnie `npm run test:e2e` — produkcyjny build i pełny lokalny przepływ HTTP/przeglądarki; wymaga zainstalowanego Google Chrome.
 - `npm run test:slots` — izolowane przypadki wskaźnika miejsc; Google Chrome i `npx playwright install ffmpeg` do nagrania. `QA_SLOTS_DEV=true` sprawdza montowanie w developerskim Strict Mode.
+- `npm run test:buttons` — izolowane stany kalendarza, animacja CTA, klawiatura, touch i reduced motion; Chrome oraz FFmpeg Playwright.
 - `npm run test:visual` i `npm run test:register-name` — dodatkowe kontrole przeglądarkowe; konfiguracja adresu przez QA_BASE_URL. Test nazw wymaga Chrome, Edge i Brave.
 
 Testów zapisujących dane nie uruchamiaj na produkcji. Skrypty administracyjne znajdują się w `scripts/`.

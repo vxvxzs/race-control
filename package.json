@@ -35,7 +35,8 @@
     "test:recovery": "tsx tests/password-recovery.integration.ts",
     "test:demo-tools": "tsx tests/demo-tools.integration.ts",
     "test:slots": "tsx tests/race-slots.browser.ts",
-    "test:register-name": "tsx tests/register-name.browser.ts"
+    "test:register-name": "tsx tests/register-name.browser.ts",
+    "test:buttons": "tsx tests/race-buttons.browser.ts"
   },
   "dependencies": {
     "@payloadcms/db-postgres": "3.90.2",

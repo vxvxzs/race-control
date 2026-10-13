@@ -1,19 +1,19 @@
-import { Status } from './Status'
+import { RaceButton } from './RaceButton'
+import type { ScheduleState } from '@/lib/schedule'
 import Link from '@/components/AppLink'
 import type { Race } from '@/payload-types'
 import { formatRaceTime } from '@/lib/dates'
-export function Schedule({ races }: { races: Race[] }) {
+export function Schedule({ races, state }: { races: Race[]; state: ScheduleState }) {
   return (
     <div className="schedule-list">
       {races.map((r) => {
         const date = new Date(r.date)
         const completed = r.raceStatus === 'completed'
+        const published = state[r.id]?.published === true
+        const full = (state[r.id]?.accepted ?? 0) >= r.maxParticipants
+        const open = !completed && r.registrationStatus === 'open' && !full
         return (
-          <Link
-            className={`schedule-row ${completed ? 'is-completed' : ''}`}
-            href={completed ? `/results/${r.slug}` : `/races/${r.slug}`}
-            key={r.id}
-          >
+          <div className={`schedule-row ${completed ? 'is-completed' : ''}`} key={r.id}>
             <time dateTime={r.date} className="schedule-date">
               <strong>
                 {new Intl.DateTimeFormat('pl-PL', {
@@ -29,25 +29,32 @@ export function Schedule({ races }: { races: Race[] }) {
                 {date.getUTCFullYear()}
               </span>
             </time>
-            <div className="schedule-track">
+            <Link href={`/races/${r.slug}`} className="schedule-track">
               <h3>{r.track}</h3>
               <span>
                 {r.trackCountry} · {r.game === 'Assetto Corsa Competizione' ? 'ACC' : r.game}
               </span>
-            </div>
+            </Link>
             <span className="schedule-round">Runda {r.round}</span>
             <span className="schedule-time">{formatRaceTime(r.date)}</span>
-            <Status
-              className="schedule-status"
-              state={completed ? 'confirmed' : r.registrationStatus === 'open' ? 'open' : 'neutral'}
-            >
-              {completed
-                ? 'Wyniki'
-                : r.registrationStatus === 'open'
-                  ? 'Zapisy otwarte'
-                  : 'Zapisy zamknięte'}
-            </Status>
-          </Link>
+            <div className="schedule-action">
+              {completed && published ? (
+                <RaceButton variant="outline" href={`/results/${r.slug}`}>
+                  Wyniki
+                </RaceButton>
+              ) : open ? (
+                <RaceButton href={`/races/${r.slug}#registration`}>Zapisz się</RaceButton>
+              ) : (
+                <span className="schedule-closed">
+                  {completed
+                    ? 'Wyniki w przygotowaniu'
+                    : full && r.registrationStatus === 'open'
+                      ? 'Lista startowa pełna'
+                      : 'Zapisy zamknięte'}
+                </span>
+              )}
+            </div>
+          </div>
         )
       })}
     </div>

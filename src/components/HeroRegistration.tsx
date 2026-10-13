@@ -1,5 +1,5 @@
 'use client'
-import Link from '@/components/AppLink'
+import { RaceButton } from '@/components/RaceButton'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { RaceSlots } from './RaceSlots'
@@ -60,9 +60,9 @@ export function HeroRegistration({
   return (
     <>
       <div className="hero-actions">
-        <Link className="button-primary" href={`/races/${slug}#registration`}>
+        <RaceButton className="button-primary" href={`/races/${slug}#registration`}>
           {open && free > 0 ? 'Zapisz się na wyścig' : 'Zobacz wydarzenie'}
-        </Link>
+        </RaceButton>
       </div>
       <div className="hero-availability">
         <RaceSlots

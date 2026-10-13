@@ -8,6 +8,7 @@ import { Countdown } from '@/components/Countdown'
 import { HeroRegistration } from '@/components/HeroRegistration'
 import { RacePhoto } from '@/components/RacePhoto'
 import { Schedule } from '@/components/Schedule'
+import { getScheduleState } from '@/lib/schedule'
 import { AnimatedNumber } from '@/components/Motion'
 export const dynamic = 'force-dynamic'
 export default async function HomePage() {
@@ -33,15 +34,10 @@ export default async function HomePage() {
     }),
   ])
   const races = racesRes.docs
+  const scheduleState = await getScheduleState(payload, races)
   const upcoming = races.find(
     (r) => r.raceStatus === 'upcoming' && Date.parse(r.date) >= Date.now(),
   )
-  const count = upcoming
-    ? await payload.count({
-        collection: 'registrations',
-        where: { and: [{ race: { equals: upcoming.id } }, { status: { equals: 'accepted' } }] },
-      })
-    : { totalDocs: 0 }
   const standings = calculateChampionshipStandings(resultRaces(resultsRes.docs)).slice(0, 5)
   return (
     <div className="home-page">
@@ -75,7 +71,7 @@ export default async function HomePage() {
               initial={
                 upcoming
                   ? {
-                      acceptedCount: count.totalDocs,
+                      acceptedCount: scheduleState[upcoming.id]?.accepted ?? 0,
                       maxParticipants: upcoming.maxParticipants,
                       registrationStatus: upcoming.registrationStatus,
                       raceStatus: upcoming.raceStatus,
@@ -99,7 +95,7 @@ export default async function HomePage() {
               Wszystkie wydarzenia
             </Link>
           </div>
-          <Schedule races={races} />
+          <Schedule races={races} state={scheduleState} />
         </div>
       </section>
       <section className="page-width home-paddock">

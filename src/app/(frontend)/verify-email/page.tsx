@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import Link from '@/components/AppLink'
 import { Suspense, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
@@ -28,9 +29,9 @@ function Verify() {
       <h1>Potwierdź adres e-mail</h1>
       <p>Jeden krok dzieli Cię od miejsca na starcie.</p>
       {state && <p role="status">{state}</p>}
-      <button className="button-primary" onClick={verify} disabled={busy || !token}>
+      <RaceButton className="button-primary" onClick={verify} disabled={busy || !token}>
         {busy ? 'Potwierdzanie…' : 'Potwierdź adres'}
-      </button>
+      </RaceButton>
       <Link href="/account">Przejdź do panelu kierowcy</Link>
     </div>
   )

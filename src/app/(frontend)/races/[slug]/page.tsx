@@ -1,3 +1,4 @@
+import { RaceButton } from '@/components/RaceButton'
 import Link from '@/components/AppLink'
 import { formatRaceDate, formatRaceTime } from '@/lib/dates'
 import { getCurrentUser } from '@/lib/auth'
@@ -178,9 +179,9 @@ export default async function RaceDetailPage({ params }: { params: Promise<{ slu
               'Obowiązuje ogólny kodeks sportowy ligi. Kary i protesty rozpatrują stewardzi po zakończeniu wyścigu.'}
           </p>
           {resultsRes.docs.length > 0 && (
-            <Link className="button-primary" href={`/results/${race.slug}`}>
+            <RaceButton className="button-primary" href={`/results/${race.slug}`}>
               Wyniki wyścigu
-            </Link>
+            </RaceButton>
           )}
         </section>
       </div>

@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import type { User } from '@/payload-types'
 import { useEffect, useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
@@ -62,9 +63,9 @@ export function Navbar() {
             ) : (
               <>
                 <Link href="/login">Zaloguj się</Link>
-                <Link className="button-primary button-small" href="/register">
+                <RaceButton className="button-primary button-small" href="/register">
                   Dołącz
-                </Link>
+                </RaceButton>
               </>
             )}
           </div>

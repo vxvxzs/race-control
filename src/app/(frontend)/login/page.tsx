@@ -1,4 +1,5 @@
 'use client'
+import { RaceButton } from '@/components/RaceButton'
 import Link from '@/components/AppLink'
 
 import { RacePhoto } from '@/components/RacePhoto'
@@ -102,13 +103,13 @@ function LoginForm() {
             />
           </div>
 
-          <button
+          <RaceButton
             type="submit"
-            disabled={loading}
+            loading={loading}
             className="w-full py-3 bg-[#D9162C] hover:bg-[#B91225] text-white font-headline text-base font-extrabold tracking-wider transition-colors disabled:opacity-50"
           >
             {loading ? 'Logowanie...' : 'Zaloguj się'}
-          </button>
+          </RaceButton>
           <Link href="/forgot-password" className="text-link block text-sm py-2">
             Nie pamiętasz hasła?
           </Link>
